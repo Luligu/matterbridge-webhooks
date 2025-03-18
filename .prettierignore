@@ -1,0 +1,7 @@
+# Ignore build files
+dist
+node_modules
+build
+coverage
+TODO.md
+

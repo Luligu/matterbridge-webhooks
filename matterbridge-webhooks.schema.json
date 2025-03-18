@@ -1,0 +1,87 @@
+{
+  "title": "Matterbridge webhooks plugin",
+  "description": "matterbridge-webhooks v. 0.0.1 by https://github.com/Luligu",
+  "type": "object",
+  "properties": {
+    "name": {
+      "description": "Plugin name",
+      "type": "string",
+      "readOnly": true,
+      "ui:widget": "hidden"
+    },
+    "type": {
+      "description": "Plugin type",
+      "type": "string",
+      "readOnly": true,
+      "ui:widget": "hidden"
+    },
+    "version": {
+      "description": "Plugin version",
+      "type": "string",
+      "readOnly": true,
+      "default": "0.0.1",
+      "ui:widget": "hidden"
+    },
+    "whiteList": {
+      "description": "Only the devices in the list will be exposed.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true,
+      "selectFrom": "name"
+    },
+    "blackList": {
+      "description": "The devices in the list will not be exposed.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true,
+      "selectFrom": "name"
+    },
+    "webhooks": {
+      "description": "Define each webhooks. Enter in the first field the name of the webhook (replace newKey with the name of the webhook) and in the right panel the parameters.",
+      "type": "object",
+      "uniqueItems": true,
+      "additionalProperties": {
+        "type": "object",
+        "description": "Webhook parameters:",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable or disable the webhook."
+          },
+          "method": {
+            "type": "string",
+            "default": "POST",
+            "enum": ["GET", "POST"],
+            "description": "HTTP method to use for the webhook."
+          },
+          "httpUrl": {
+            "type": "string",
+            "title": "Webhook URL",
+            "description": "URL to which the webhook will send requests."
+          },
+          "test": {
+            "type": "boolean",
+            "default": false,
+            "buttonText": "Test",
+            "description": "Test the webhook by sending a request"
+          }
+        }
+      }
+    },
+    "debug": {
+      "description": "Enable the debug for the plugin.",
+      "type": "boolean",
+      "default": false
+    },
+    "unregisterOnShutdown": {
+      "description": "Unregister all devices on shutdown. This will remove all devices from the controller when the plugin is stopped.",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}
