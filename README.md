@@ -19,6 +19,7 @@ This plugin allows you to expose any webhooks to Matter.
 Features:
 
 - The webhooks parameters can easily be entered in the frontend.
+- It is possible to choose how to expose the webhooks: Switch, Outlet or Light.
 - It is possible to choose the method: GET or POST.
 - The webhook can be tested in the frontend.
 
@@ -54,7 +55,7 @@ See the complete guidelines on [Matterbridge](https://github.com/Luligu/matterbr
 
 ## How to add a webhook
 
-In the frontend open the plugin config: add a new webhook, enter the webhook name in the first field (replace newKey with the name you want to give to the webhook), select GET or POST and enter the webhook url. The webhook name will be the device name on the controller. The webhook will be exposed like a switch or like a plug, when you turn it on the webhook is called and in a few seconds the switch or the plug will revert to off.
+In the frontend open the plugin config: add a new webhook, enter the webhook name in the first field (replace newKey with the name you want to give to the webhook), select GET or POST and enter the webhook url. The webhook name will be the device name on the controller. The webhook will be exposed like a switch, like an outlet or like a light. When you turn it on, the webhook is called and in a few seconds the switch or the outlet or the light will revert to off.
 
 It is possible to test directly the webhook from the config editor.
 
