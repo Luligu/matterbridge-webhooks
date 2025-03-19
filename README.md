@@ -30,7 +30,7 @@ If you like this project and find it useful, please consider giving it a star on
 
 ## Sponsors
 
-I'm looking for sponsors and help to test the plugin with different platform.
+I'm looking for sponsors and some help to test the plugin with different platform.
 
 ## Prerequisites
 
@@ -49,3 +49,11 @@ sudo npm install -g matterbridge --omit=dev
 ```
 
 See the complete guidelines on [Matterbridge](https://github.com/Luligu/matterbridge/blob/main/README.md) for more information.
+
+## How to add a webhook
+
+In the frontend open the plugin config: add a new webhook, enter the webhook name in the first field (replace newKey with the name you want to give to the webhook), select GET or POST and enter the webhook url. The webhook name will be the device name on the controller. The webhook will be exposed like a switch or like a plug, when you turn it on the webhook is called and in a few seconds the switch or the plug will revert to off.
+
+It is possible to test directly the webhook from the config editor.
+
+For example to turn on a shelly gen 1 device with ip 192.168.1.155 the url is http://192.168.1.155/light/0?turn=on.

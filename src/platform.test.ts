@@ -136,7 +136,7 @@ describe('TestPlatform', () => {
   } as PlatformConfig;
 
   beforeAll(() => {
-    //
+    // Setup before all tests
   });
 
   beforeEach(() => {
@@ -178,16 +178,24 @@ describe('TestPlatform', () => {
   });
 
   it('should call onAction', async () => {
+    jest.useFakeTimers();
     await platform.onAction('test', undefined, 'Turn off shelly bulb');
     expect(mockLog.info).toHaveBeenCalledWith('onAction called with action:', 'test', 'and value:', 'none', 'and id:', 'Turn off shelly bulb');
     expect(mockLog.info).toHaveBeenCalledWith(expect.stringContaining('Testing webhook'));
+    jest.runAllTimers();
+    jest.useRealTimers();
+    await wait(1000);
   });
 
   it('should execute command handler', async () => {
+    jest.useFakeTimers();
     platform.bridgedDevices.forEach(async (device) => {
       await device.executeCommandHandler('on');
       expect(mockLog.info).toHaveBeenCalledWith(`Webhook ${device.deviceName} triggered.`);
     });
+    jest.runAllTimers();
+    jest.useRealTimers();
+    await wait(1000);
   });
 
   it('should execute command handler and fail', async () => {
@@ -213,46 +221,4 @@ describe('TestPlatform', () => {
     await platform.onShutdown('Test reason');
     expect(mockLog.info).toHaveBeenCalledWith('onShutdown called with reason:', 'Test reason');
   });
-
-  // eslint-disable-next-line jest/no-commented-out-tests
-  /*
-  it('should fetch shelly', async () => {
-    const response = await platform.fetch('http://192.168.1.155/shelly');
-    expect(response).toBeDefined();
-    expect(response).toEqual({
-      'auth': false,
-      'discoverable': false,
-      'fw': '20230913-111548/v1.14.0-gcb84623',
-      'longid': 1,
-      'mac': '485519EE12A7',
-      'num_outputs': 1,
-      'type': 'SHCB-1',
-    });
-    expect(mockLog.error).not.toHaveBeenCalled();
-  });
-
-  it('should turn on shelly', async () => {
-    const response = await platform.fetch('http://192.168.1.155/light/0', 'GET', { turn: 'on', gain: 100, brightness: 100 });
-    expect(response).toBeDefined();
-    expect(response).toEqual({
-      'blue': 0,
-      'brightness': 100,
-      'effect': 0,
-      'gain': 100,
-      'green': 255,
-      'has_timer': false,
-      'ison': true,
-      'mode': 'color',
-      'red': 17,
-      'source': 'http',
-      'temp': 3000,
-      'timer_duration': 0,
-      'timer_remaining': 0,
-      'timer_started': 0,
-      'transition': 0,
-      'white': 0,
-    });
-    expect(mockLog.error).not.toHaveBeenCalled();
-  });
-  */
 });

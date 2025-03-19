@@ -23,7 +23,7 @@
       "ui:widget": "hidden"
     },
     "whiteList": {
-      "description": "Only the devices in the list will be exposed.",
+      "description": "Only the webhooks in the list will be exposed. If the list is empty, all the webhooks will be exposed.",
       "type": "array",
       "items": {
         "type": "string"
@@ -32,13 +32,19 @@
       "selectFrom": "name"
     },
     "blackList": {
-      "description": "The devices in the list will not be exposed.",
+      "description": "The webhooks in the list will not be exposed. If the list is empty, no webhooks will be excluded.",
       "type": "array",
       "items": {
         "type": "string"
       },
       "uniqueItems": true,
       "selectFrom": "name"
+    },
+    "deviceType": {
+      "type": "string",
+      "default": "Outlet",
+      "enum": ["Outlet", "Switch", "Light"],
+      "description": "Select how to rappresent the webhooks on the controller. Don't use Switch for Alexa."
     },
     "webhooks": {
       "description": "Define each webhooks. Enter in the first field the name of the webhook (replace newKey with the name of the webhook) and in the right panel the parameters.",
@@ -47,15 +53,11 @@
       "additionalProperties": {
         "type": "object",
         "description": "Webhook parameters:",
+        "required": ["method", "httpUrl"],
         "properties": {
-          "enabled": {
-            "type": "boolean",
-            "default": true,
-            "description": "Enable or disable the webhook."
-          },
           "method": {
             "type": "string",
-            "default": "POST",
+            "default": "GET",
             "enum": ["GET", "POST"],
             "description": "HTTP method to use for the webhook."
           },

@@ -79,7 +79,7 @@ describe('initializePlugin', () => {
   } as unknown as AnsiLogger;
 
   const mockConfig = {
-    'name': 'matterbridge-test',
+    'name': 'matterbridge-webhooks',
     'type': 'DynamicPlatform',
     'debug': false,
     'unregisterOnShutdown': false,
