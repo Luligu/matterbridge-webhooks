@@ -8,12 +8,12 @@ If you like this project and find it useful, please consider giving it a star on
   <img src="bmc-button.svg" alt="Buy me a coffee" width="120">
 </a>
 
-## [0.0.1] - 2025-03-18
+## [0.0.1] - 2025-03-19
 
 First published release.
 
 <a href="https://www.buymeacoffee.com/luligugithub">
-  <img src="bmc-button.svg" alt="Buy me a coffee" width="120">
+  <img src="bmc-button.svg" alt="Buy me a coffee" width="80">
 </a>
 
 <!-- Commented out section
