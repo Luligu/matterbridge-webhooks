@@ -11,7 +11,7 @@ interface JsonArray extends Array<JsonValue> {
   //
 }
 
-export async function fetch<T>(url: string, method: 'POST' | 'GET' = 'GET', data: Record<string, JsonValue> = {}, timeout = 30000): Promise<T> {
+export async function fetch<T>(url: string, method: 'POST' | 'GET' = 'GET', data: Record<string, JsonValue> = {}, timeout = 5000): Promise<T> {
   return new Promise((resolve, reject) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {

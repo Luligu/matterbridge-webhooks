@@ -1,4 +1,4 @@
-import { bridgedNode, Matterbridge, MatterbridgeDynamicPlatform, MatterbridgeEndpoint, onOffOutlet, PlatformConfig } from 'matterbridge';
+import { bridgedNode, Matterbridge, MatterbridgeDynamicPlatform, MatterbridgeEndpoint, onOffLight, onOffOutlet, onOffSwitch, PlatformConfig } from 'matterbridge';
 import { AnsiLogger } from 'matterbridge/logger';
 import { fetch } from './fetch.js';
 
@@ -16,7 +16,7 @@ export class Platform extends MatterbridgeDynamicPlatform {
 
     this.log.info('Initializing platform:', this.config.name);
 
-    this.webhooks = this.config.webhooks as Record<string, { enabled: boolean; method: 'POST' | 'GET'; httpUrl: string; test: boolean }>;
+    this.webhooks = this.config.webhooks as Record<string, { method: 'POST' | 'GET'; httpUrl: string; test: boolean }>;
 
     this.log.info('Finished initializing platform:', this.config.name);
   }
@@ -29,11 +29,14 @@ export class Platform extends MatterbridgeDynamicPlatform {
     for (const webhookName in this.webhooks) {
       if (Object.prototype.hasOwnProperty.call(this.webhooks, webhookName)) {
         const webhook = this.webhooks[webhookName];
-        if (!webhook.enabled) continue;
         this.setSelectDevice('webhook' + i, webhookName, webhook.httpUrl, 'webhook');
         if (!this.validateDevice(['webhook' + i, webhookName])) return;
         this.log.info(`Registering device: ${webhookName}`, webhook.method, webhook.httpUrl);
-        const device = new MatterbridgeEndpoint([onOffOutlet, bridgedNode], { uniqueStorageKey: webhookName }, this.config.debug as boolean)
+        const device = new MatterbridgeEndpoint(
+          [this.config.deviceType === 'Outlet' ? onOffOutlet : this.config.deviceType === 'Light' ? onOffLight : onOffSwitch, bridgedNode],
+          { uniqueStorageKey: webhookName },
+          this.config.debug as boolean,
+        )
           .createDefaultBridgedDeviceBasicInformationClusterServer(
             webhookName,
             'webhook' + i++,
@@ -75,7 +78,6 @@ export class Platform extends MatterbridgeDynamicPlatform {
       for (const webhookName in this.webhooks) {
         if (Object.prototype.hasOwnProperty.call(this.webhooks, webhookName)) {
           const webhook = this.webhooks[webhookName];
-          if (!webhook.enabled) continue;
           if (id?.includes(webhookName)) {
             this.log.info(`Testing webhook ${webhookName} method ${webhook.method} url ${webhook.httpUrl}`);
             fetch(webhook.httpUrl, webhook.method)
