@@ -21,6 +21,7 @@ export async function fetch<T>(url: string, method: 'POST' | 'GET' = 'GET', data
 
     let requestUrl = url;
     const jsonData = JSON.stringify(data);
+    // Add the JSON data to the url only if the method is GET
     if (method === 'GET') {
       const queryParams = new URLSearchParams(
         Object.entries(data).reduce(
