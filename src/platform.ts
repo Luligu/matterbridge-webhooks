@@ -24,6 +24,10 @@ export class Platform extends MatterbridgeDynamicPlatform {
   override async onStart(reason?: string): Promise<void> {
     this.log.info('onStart called with reason:', reason ?? 'none');
 
+    // Clear all devices select
+    await this.ready;
+    await this.clearSelect();
+
     // Register devices
     let i = 1;
     for (const webhookName in this.webhooks) {

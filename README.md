@@ -61,6 +61,26 @@ It is possible to test directly the webhook from the config editor.
 
 ## Examples
 
-## Shelly webhooks
+## Shelly webhooks examples
 
-For example to turn on a shelly gen 1 device with ip 192.168.1.155 the url is http://192.168.1.155/light/0?turn=on.
+Change 192.168.1.XXX with your device IP address.
+
+### Shelly 1 Gen 1
+
+To turn on a shelly gen 1 device with ip 192.168.1.155 the url is http://192.168.1.XXX/light/0?turn=on.
+
+To turn off a shelly gen 1 device with ip 192.168.1.155 the url is http://192.168.1.XXX/light/0?turn=off.
+
+### Shelly Trv Gen 1
+
+The following examples allows to fully control a Shelly Trv Gen 1, adding Boost, Schedule and Profile (provided by https://github.com/vandan380).
+
+"Boost 30min": method: POST, Url: "http://192.168.1.XXX/thermostats/0?boost_minutes=30"
+
+"Schedule Enable": method: POST, Url: "http://192.168.1.XXX/settings/thermostats/0?schedule=1"
+
+"Schedule Disable": method: POST, Url: "http://192.168.1.XXX/settings/thermostats/0?schedule=0"
+
+"Profile Working Day": method: POST, Url: "http://192.168.1.XXX/settings/thermostats/0?schedule_profile=1"
+
+"Profile Holiday": method: POST, Url: "http://192.168.1.XXX/settings/thermostats/0?schedule_profile=2"
