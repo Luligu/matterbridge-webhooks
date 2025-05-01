@@ -8,6 +8,22 @@ If you like this project and find it useful, please consider giving it a star on
   <img src="bmc-button.svg" alt="Buy me a coffee" width="120">
 </a>
 
+## [0.0.3] - 2025-05-01
+
+### Added
+
+- [readme]: Added the possibility to test the hook before confirming the changes in the config editor.
+
+### Changed
+
+- [package]: Require matterbridge 3.0.0.
+- [package]: Updated package.
+- [package]: Updated dependencies.
+
+<a href="https://www.buymeacoffee.com/luligugithub">
+  <img src="bmc-button.svg" alt="Buy me a coffee" width="80">
+</a>
+
 ## [0.0.2] - 2025-03-30
 
 ### Added

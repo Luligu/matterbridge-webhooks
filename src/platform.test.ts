@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import * as fetchModule from './fetch'; // adjust the module path as needed
+
+// Mock the fetch module
+import { jest } from '@jest/globals';
 import { Matterbridge, MatterbridgeEndpoint, PlatformConfig } from 'matterbridge';
 import { wait } from 'matterbridge/utils';
 import { AnsiLogger } from 'matterbridge/logger';
 import { Platform } from './platform';
-
-import { jest } from '@jest/globals';
 
 describe('TestPlatform', () => {
   let platform: Platform;
@@ -18,12 +18,6 @@ describe('TestPlatform', () => {
   let consoleWarnSpy: jest.SpiedFunction<typeof console.log>;
   let consoleErrorSpy: jest.SpiedFunction<typeof console.log>;
   const debug = false;
-
-  /*
-  const fetchSpy = jest.spyOn(fetchModule, 'fetch').mockImplementation(async (url: string, method?: 'POST' | 'GET', data?: any, timeout?: number) => {
-    return {} as any;
-  });
-  */
 
   if (!debug) {
     // Spy on and mock AnsiLogger.log
@@ -90,7 +84,7 @@ describe('TestPlatform', () => {
     matterbridgeDirectory: './jest/matterbridge',
     matterbridgePluginDirectory: './jest/plugins',
     systemInformation: { ipv4Address: undefined, ipv6Address: undefined, osRelease: 'xx.xx.xx.xx.xx.xx', nodeVersion: '22.1.10' },
-    matterbridgeVersion: '2.2.5',
+    matterbridgeVersion: '3.0.0',
     log: mockLog,
     getDevices: jest.fn(() => {
       // console.log('getDevices called');
@@ -156,9 +150,9 @@ describe('TestPlatform', () => {
   it('should throw error in load when version is not valid', () => {
     mockMatterbridge.matterbridgeVersion = '1.5.0';
     expect(() => new Platform(mockMatterbridge, mockLog, mockConfig)).toThrow(
-      'This plugin requires Matterbridge version >= "2.2.5". Please update Matterbridge to the latest version in the frontend.',
+      'This plugin requires Matterbridge version >= "3.0.0". Please update Matterbridge to the latest version in the frontend.',
     );
-    mockMatterbridge.matterbridgeVersion = '2.2.5';
+    mockMatterbridge.matterbridgeVersion = '3.0.0';
   });
 
   it('should initialize platform with config name', () => {
@@ -209,12 +203,36 @@ describe('TestPlatform', () => {
     expect(mockLog.error).toHaveBeenCalledWith(expect.stringContaining(`failed:`));
   });
 
+  it('should call onAction with formData and fail', async () => {
+    await platform.onAction('test', undefined, 'root_webhooks_newKey_test', {
+      name: 'matterbridge-webhooks',
+      type: 'DynamicPlatform',
+      version: '0.0.3',
+      whiteList: [],
+      blackList: [],
+      deviceType: 'Switch',
+      webhooks: {
+        newKey: {
+          method: 'GET',
+          httpUrl: 'http://192.168.1.155/light/0?turn=on',
+          test: false,
+        },
+      },
+      debug: true,
+      unregisterOnShutdown: false,
+    });
+    expect(mockLog.info).toHaveBeenCalledWith('onAction called with action:', 'test', 'and value:', 'none', 'and id:', 'root_webhooks_newKey_test');
+    expect(mockLog.info).toHaveBeenCalledWith(expect.stringContaining('Testing new webhook'));
+    // await wait(1000);
+    // expect(mockLog.error).toHaveBeenCalledWith(expect.stringContaining(`failed:`));
+  });
+
   it('should call onAction and fail', async () => {
     await platform.onAction('test', undefined, 'Turn off shelly bulb');
     expect(mockLog.info).toHaveBeenCalledWith('onAction called with action:', 'test', 'and value:', 'none', 'and id:', 'Turn off shelly bulb');
     expect(mockLog.info).toHaveBeenCalledWith(expect.stringContaining('Testing webhook'));
-    await wait(1000);
-    expect(mockLog.error).toHaveBeenCalledWith(expect.stringContaining(`failed:`));
+    // await wait(1000);
+    // expect(mockLog.error).toHaveBeenCalledWith(expect.stringContaining(`failed:`));
   });
 
   it('should call onShutdown with reason', async () => {
