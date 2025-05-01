@@ -1,22 +1,29 @@
 import { bridgedNode, Matterbridge, MatterbridgeDynamicPlatform, MatterbridgeEndpoint, onOffLight, onOffOutlet, onOffSwitch, PlatformConfig } from 'matterbridge';
+import { isValidObject } from 'matterbridge/utils';
 import { AnsiLogger } from 'matterbridge/logger';
 import { fetch } from './fetch.js';
 
+interface WebhookConfig {
+  method: 'POST' | 'GET';
+  httpUrl: string;
+  test: boolean;
+}
+
 export class Platform extends MatterbridgeDynamicPlatform {
-  webhooks;
+  private webhooks: Record<string, WebhookConfig>;
   readonly bridgedDevices = new Map<string, MatterbridgeEndpoint>();
 
   constructor(matterbridge: Matterbridge, log: AnsiLogger, config: PlatformConfig) {
     super(matterbridge, log, config);
 
     // Verify that Matterbridge is the correct version
-    if (this.verifyMatterbridgeVersion === undefined || typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('2.2.5')) {
-      throw new Error(`This plugin requires Matterbridge version >= "2.2.5". Please update Matterbridge to the latest version in the frontend.`);
+    if (this.verifyMatterbridgeVersion === undefined || typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('3.0.0')) {
+      throw new Error(`This plugin requires Matterbridge version >= "3.0.0". Please update Matterbridge to the latest version in the frontend.`);
     }
 
     this.log.info('Initializing platform:', this.config.name);
 
-    this.webhooks = this.config.webhooks as Record<string, { method: 'POST' | 'GET'; httpUrl: string; test: boolean }>;
+    this.webhooks = this.config.webhooks as Record<string, WebhookConfig>;
 
     this.log.info('Finished initializing platform:', this.config.name);
   }
@@ -76,9 +83,33 @@ export class Platform extends MatterbridgeDynamicPlatform {
     });
   }
 
-  override async onAction(action: string, value?: string, id?: string): Promise<void> {
+  override async onAction(action: string, value?: string, id?: string, formData?: PlatformConfig): Promise<void> {
     this.log.info('onAction called with action:', action, 'and value:', value ?? 'none', 'and id:', id ?? 'none');
+    this.log.debug('onAction called with formData:', formData ?? 'none');
+    if (id?.startsWith('root_webhooks_')) id = id.replace('root_webhooks_', '');
+    if (id?.endsWith('_test')) id = id.replace('_test', '');
     if (action === 'test') {
+      // Test the webhook before is confirmed
+      if (isValidObject(formData, 1) && isValidObject(formData.webhooks, 1)) {
+        const webhooks = formData.webhooks as Record<string, WebhookConfig>;
+        for (const webhookName in webhooks) {
+          if (Object.prototype.hasOwnProperty.call(webhooks, webhookName)) {
+            const webhook = webhooks[webhookName];
+            if (id?.includes(webhookName)) {
+              this.log.info(`Testing new webhook ${webhookName} method ${webhook.method} url ${webhook.httpUrl}`);
+              fetch(webhook.httpUrl, webhook.method)
+                .then(() => {
+                  this.log.notice(`Webhook test ${webhookName} successful!`);
+                })
+                .catch((err) => {
+                  this.log.error(`Webhook test ${webhookName} failed: ${err instanceof Error ? err.message : err}`);
+                });
+            }
+          }
+        }
+        return;
+      }
+      // Test the webhook already confirmed
       for (const webhookName in this.webhooks) {
         if (Object.prototype.hasOwnProperty.call(this.webhooks, webhookName)) {
           const webhook = this.webhooks[webhookName];

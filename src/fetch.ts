@@ -63,7 +63,7 @@ export async function fetch<T>(url: string, method: 'POST' | 'GET' = 'GET', data
         clearTimeout(timeoutId);
         res.resume(); // Discard response data to free up memory
         req.destroy(); // Close the request
-        return reject(new Error(`Request failed with status code: ${res.statusCode}`));
+        reject(new Error(`Request failed with status code: ${res.statusCode}`));
       }
 
       res.on('data', (chunk) => {

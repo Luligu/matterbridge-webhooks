@@ -1,6 +1,6 @@
 {
   "name": "matterbridge-webhooks",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Matterbridge webhooks plugin",
   "author": "https://github.com/Luligu",
   "license": "Apache-2.0",
@@ -95,18 +95,18 @@
     "node-persist-manager": "^1.0.8"
   },
   "devDependencies": {
-    "@eslint/js": "^9.23.0",
+    "@eslint/js": "^9.25.1",
     "@types/jest": "^29.5.14",
-    "@types/node": "^22.13.14",
-    "eslint-config-prettier": "^10.1.1",
+    "@types/node": "^22.15.3",
+    "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-jest": "^28.11.0",
     "eslint-plugin-n": "^17.17.0",
-    "eslint-plugin-prettier": "^5.2.5",
+    "eslint-plugin-prettier": "^5.2.6",
     "jest": "^29.7.0",
     "prettier": "^3.5.3",
     "rimraf": "^6.0.1",
-    "ts-jest": "^29.3.0",
-    "typescript": "^5.8.2",
-    "typescript-eslint": "^8.28.0"
+    "ts-jest": "^29.3.2",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.31.1"
   }
 }
