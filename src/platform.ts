@@ -36,41 +36,41 @@ export class Platform extends MatterbridgeDynamicPlatform {
     await this.clearSelect();
 
     // Register devices
-    let i = 1;
+    let i = 0;
     for (const webhookName in this.webhooks) {
-      if (Object.prototype.hasOwnProperty.call(this.webhooks, webhookName)) {
-        const webhook = this.webhooks[webhookName];
-        this.setSelectDevice('webhook' + i, webhookName, webhook.httpUrl, 'webhook');
-        if (!this.validateDevice(['webhook' + i, webhookName])) return;
-        this.log.info(`Registering device: ${webhookName}`, webhook.method, webhook.httpUrl);
-        const device = new MatterbridgeEndpoint(
-          [this.config.deviceType === 'Outlet' ? onOffOutlet : this.config.deviceType === 'Light' ? onOffLight : onOffSwitch, bridgedNode],
-          { uniqueStorageKey: webhookName },
-          this.config.debug as boolean,
+      this.log.debug(`Loading webhook ${++i} ${webhookName} with method ${this.webhooks[webhookName].method} and url ${this.webhooks[webhookName].httpUrl}`);
+
+      const webhook = this.webhooks[webhookName];
+      this.setSelectDevice('webhook' + i, webhookName, undefined, 'hub');
+      if (!this.validateDevice(['webhook' + i, webhookName], true)) continue;
+      this.log.info(`Registering device: ${webhookName} with method ${webhook.method} and url ${webhook.httpUrl}`);
+      const device = new MatterbridgeEndpoint(
+        [this.config.deviceType === 'Outlet' ? onOffOutlet : this.config.deviceType === 'Light' ? onOffLight : onOffSwitch, bridgedNode],
+        { uniqueStorageKey: webhookName },
+        this.config.debug as boolean,
+      )
+        .createDefaultBridgedDeviceBasicInformationClusterServer(
+          webhookName,
+          'webhook' + i++,
+          this.matterbridge.aggregatorVendorId,
+          'Matterbridge',
+          'Matterbridge Webhook',
+          0,
+          this.config.version as string,
         )
-          .createDefaultBridgedDeviceBasicInformationClusterServer(
-            webhookName,
-            'webhook' + i++,
-            this.matterbridge.aggregatorVendorId,
-            'Matterbridge',
-            'Matterbridge Webhook',
-            0,
-            this.config.version as string,
-          )
-          .createOnOffClusterServer(false)
-          .addRequiredClusterServers()
-          .addCommandHandler('on', async () => {
-            this.log.info(`Webhook ${webhookName} triggered.`);
-            await device.setAttribute('onOff', 'onOff', false, device.log);
-            fetch(webhook.httpUrl, webhook.method)
-              .then(() => this.log.notice(`Webhook ${webhookName} successful!`))
-              .catch((err) => {
-                this.log.error(`Webhook ${webhookName} failed: ${err instanceof Error ? err.message : err}`);
-              });
-          });
-        await this.registerDevice(device);
-        this.bridgedDevices.set(webhookName, device);
-      }
+        .createOnOffClusterServer(false)
+        .addRequiredClusterServers()
+        .addCommandHandler('on', async () => {
+          this.log.info(`Webhook ${webhookName} triggered.`);
+          await device.setAttribute('onOff', 'onOff', false, device.log);
+          fetch(webhook.httpUrl, webhook.method)
+            .then(() => this.log.notice(`Webhook ${webhookName} successful!`))
+            .catch((err) => {
+              this.log.error(`Webhook ${webhookName} failed: ${err instanceof Error ? err.message : err}`);
+            });
+        });
+      await this.registerDevice(device);
+      this.bridgedDevices.set(webhookName, device);
     }
   }
 
