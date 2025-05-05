@@ -8,6 +8,21 @@ If you like this project and find it useful, please consider giving it a star on
   <img src="bmc-button.svg" alt="Buy me a coffee" width="120">
 </a>
 
+## [0.0.4] - 2025-05-05
+
+### Changed
+
+- [package]: Updated package.
+- [package]: Updated dependencies.
+
+### Fixed
+
+- [platform]: Fixed bug on unselected webhooks.
+
+<a href="https://www.buymeacoffee.com/luligugithub">
+  <img src="bmc-button.svg" alt="Buy me a coffee" width="80">
+</a>
+
 ## [0.0.3] - 2025-05-01
 
 ### Added
