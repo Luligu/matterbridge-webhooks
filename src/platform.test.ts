@@ -106,27 +106,27 @@ describe('TestPlatform', () => {
   } as unknown as Matterbridge;
 
   const mockConfig = {
-    'name': 'matterbridge-webhooks',
-    'type': 'DynamicPlatform',
-    'version': '0.0.1',
-    'whiteList': [],
-    'blackList': [],
-    'webhooks': {
+    name: 'matterbridge-webhooks',
+    type: 'DynamicPlatform',
+    version: '0.0.1',
+    whiteList: [],
+    blackList: [],
+    webhooks: {
       'Turn on shelly bulb': {
-        'enabled': true,
-        'method': 'POST',
-        'httpUrl': 'http://192.168.1.155/light/0?turn=on',
-        'test': false,
+        enabled: true,
+        method: 'POST',
+        httpUrl: 'http://192.168.1.155/light/0?turn=on',
+        test: false,
       },
       'Turn off shelly bulb': {
-        'enabled': true,
-        'method': 'GET',
-        'httpUrl': 'http://192.168.1.155/light/0?turn=off',
-        'test': false,
+        enabled: true,
+        method: 'GET',
+        httpUrl: 'http://192.168.1.155/light/0?turn=off',
+        test: false,
       },
     },
-    'debug': true,
-    'unregisterOnShutdown': false,
+    debug: true,
+    unregisterOnShutdown: false,
   } as PlatformConfig;
 
   beforeAll(() => {
