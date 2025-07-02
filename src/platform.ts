@@ -1,6 +1,7 @@
 import { bridgedNode, Matterbridge, MatterbridgeDynamicPlatform, MatterbridgeEndpoint, onOffLight, onOffOutlet, onOffSwitch, PlatformConfig } from 'matterbridge';
 import { isValidObject } from 'matterbridge/utils';
 import { AnsiLogger } from 'matterbridge/logger';
+
 import { fetch } from './fetch.js';
 
 interface WebhookConfig {
@@ -100,6 +101,7 @@ export class Platform extends MatterbridgeDynamicPlatform {
               fetch(webhook.httpUrl, webhook.method)
                 .then(() => {
                   this.log.notice(`Webhook test ${webhookName} successful!`);
+                  return;
                 })
                 .catch((err) => {
                   this.log.error(`Webhook test ${webhookName} failed: ${err instanceof Error ? err.message : err}`);
@@ -118,6 +120,7 @@ export class Platform extends MatterbridgeDynamicPlatform {
             fetch(webhook.httpUrl, webhook.method)
               .then(() => {
                 this.log.notice(`Webhook test ${webhookName} successful!`);
+                return;
               })
               .catch((err) => {
                 this.log.error(`Webhook test ${webhookName} failed: ${err instanceof Error ? err.message : err}`);

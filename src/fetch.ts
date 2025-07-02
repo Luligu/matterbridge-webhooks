@@ -11,6 +11,15 @@ interface JsonArray extends Array<JsonValue> {
   //
 }
 
+/**
+ * Fetches data from a given URL using the specified method and data.
+ *
+ * @param {string} url - The URL to fetch data from.
+ * @param {'POST' | 'GET'} method - The HTTP method to use for the request. Defaults to 'GET'.
+ * @param {Record<string, JsonValue>} data - The data to send with the request, if applicable. Defaults to an empty object.
+ * @param {number} timeout - The timeout for the request in milliseconds. Defaults to 5000ms (5 seconds).
+ * @returns {Promise<T>} - A promise that resolves to the parsed JSON response.
+ */
 export async function fetch<T>(url: string, method: 'POST' | 'GET' = 'GET', data: Record<string, JsonValue> = {}, timeout = 5000): Promise<T> {
   return new Promise((resolve, reject) => {
     const controller = new AbortController();
