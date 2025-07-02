@@ -1,14 +1,19 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 // Mock the fetch module
+import http, { Server } from 'node:http';
+import { AddressInfo } from 'node:net';
+
 import { jest } from '@jest/globals';
 import { Matterbridge, MatterbridgeEndpoint, PlatformConfig } from 'matterbridge';
 import { wait } from 'matterbridge/utils';
 import { AnsiLogger } from 'matterbridge/logger';
-import { Platform } from './platform';
+
+import { Platform } from './platform.ts';
 
 describe('TestPlatform', () => {
+  let server: Server;
+  let port: number;
+  let baseUrl: string;
+
   let platform: Platform;
 
   let loggerLogSpy: jest.SpiedFunction<typeof AnsiLogger.prototype.log>;
@@ -20,64 +25,28 @@ describe('TestPlatform', () => {
   const debug = false;
 
   if (!debug) {
-    // Spy on and mock AnsiLogger.log
-    loggerLogSpy = jest.spyOn(AnsiLogger.prototype, 'log').mockImplementation((level: string, message: string, ...parameters: any[]) => {
-      //
-    });
-    // Spy on and mock console.log
-    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation((...args: any[]) => {
-      //
-    });
-    // Spy on and mock console.debug
-    consoleDebugSpy = jest.spyOn(console, 'debug').mockImplementation((...args: any[]) => {
-      //
-    });
-    // Spy on and mock console.info
-    consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation((...args: any[]) => {
-      //
-    });
-    // Spy on and mock console.warn
-    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation((...args: any[]) => {
-      //
-    });
-    // Spy on and mock console.error
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation((...args: any[]) => {
-      //
-    });
+    loggerLogSpy = jest.spyOn(AnsiLogger.prototype, 'log').mockImplementation((level: string, message: string, ...parameters: any[]) => {});
+    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation((...args: any[]) => {});
+    consoleDebugSpy = jest.spyOn(console, 'debug').mockImplementation((...args: any[]) => {});
+    consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation((...args: any[]) => {});
+    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation((...args: any[]) => {});
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation((...args: any[]) => {});
   } else {
-    // Spy on AnsiLogger.log
     loggerLogSpy = jest.spyOn(AnsiLogger.prototype, 'log');
-    // Spy on console.log
     consoleLogSpy = jest.spyOn(console, 'log');
-    // Spy on console.debug
     consoleDebugSpy = jest.spyOn(console, 'debug');
-    // Spy on console.info
     consoleInfoSpy = jest.spyOn(console, 'info');
-    // Spy on console.warn
     consoleWarnSpy = jest.spyOn(console, 'warn');
-    // Spy on console.error
     consoleErrorSpy = jest.spyOn(console, 'error');
   }
 
   const mockLog = {
-    fatal: jest.fn((message: string, ...parameters: any[]) => {
-      // console.error('mockLog.fatal', message, parameters);
-    }),
-    error: jest.fn((message: string, ...parameters: any[]) => {
-      // console.error('mockLog.error', message, parameters);
-    }),
-    warn: jest.fn((message: string, ...parameters: any[]) => {
-      // console.error('mockLog.warn', message, parameters);
-    }),
-    notice: jest.fn((message: string, ...parameters: any[]) => {
-      // console.error('mockLog.notice', message, parameters);
-    }),
-    info: jest.fn((message: string, ...parameters: any[]) => {
-      // console.error('mockLog.info', message, parameters);
-    }),
-    debug: jest.fn((message: string, ...parameters: any[]) => {
-      // console.error('mockLog.debug', message, parameters);
-    }),
+    fatal: jest.fn((message: string, ...parameters: any[]) => {}),
+    error: jest.fn((message: string, ...parameters: any[]) => {}),
+    warn: jest.fn((message: string, ...parameters: any[]) => {}),
+    notice: jest.fn((message: string, ...parameters: any[]) => {}),
+    info: jest.fn((message: string, ...parameters: any[]) => {}),
+    debug: jest.fn((message: string, ...parameters: any[]) => {}),
   } as unknown as AnsiLogger;
 
   const mockMatterbridge = {
@@ -106,31 +75,46 @@ describe('TestPlatform', () => {
   } as unknown as Matterbridge;
 
   const mockConfig = {
-    'name': 'matterbridge-webhooks',
-    'type': 'DynamicPlatform',
-    'version': '0.0.1',
-    'whiteList': [],
-    'blackList': [],
-    'webhooks': {
+    name: 'matterbridge-webhooks',
+    type: 'DynamicPlatform',
+    version: '0.0.1',
+    whiteList: [],
+    blackList: [],
+    webhooks: {
       'Turn on shelly bulb': {
-        'enabled': true,
-        'method': 'POST',
-        'httpUrl': 'http://192.168.1.155/light/0?turn=on',
-        'test': false,
+        enabled: true,
+        method: 'POST',
+        httpUrl: '',
+        test: false,
       },
       'Turn off shelly bulb': {
-        'enabled': true,
-        'method': 'GET',
-        'httpUrl': 'http://192.168.1.155/light/0?turn=off',
-        'test': false,
+        enabled: true,
+        method: 'GET',
+        httpUrl: '',
+        test: false,
       },
     },
-    'debug': true,
-    'unregisterOnShutdown': false,
+    debug: true,
+    unregisterOnShutdown: false,
   } as PlatformConfig;
 
-  beforeAll(() => {
-    // Setup before all tests
+  beforeAll(async () => {
+    // Create server
+    // This server will be used to mock the HTTP requests made by the webhooks
+    server = http.createServer((req, res) => {
+      if (req.url?.includes('fail')) {
+        res.writeHead(300, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: 'Internal Server Error' }));
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true }));
+    });
+    await new Promise<void>((resolve) => server.listen(0, () => resolve()));
+    port = (server.address() as AddressInfo).port;
+    baseUrl = `http://127.0.0.1:${port}`;
+    (mockConfig as any).webhooks['Turn on shelly bulb'].httpUrl = baseUrl + '/light/0?turn=on';
+    (mockConfig as any).webhooks['Turn off shelly bulb'].httpUrl = baseUrl + '/light/0?turn=off';
   });
 
   beforeEach(() => {
@@ -142,7 +126,16 @@ describe('TestPlatform', () => {
     // Cleanup after each test
   });
 
-  afterAll(() => {
+  afterAll(async () => {
+    // Close server
+    await new Promise<void>((resolve) => {
+      if (server && server.listening) {
+        server.close(() => resolve());
+      } else {
+        resolve();
+      }
+    });
+
     // Restore all mocks
     jest.restoreAllMocks();
   });
@@ -172,24 +165,19 @@ describe('TestPlatform', () => {
   });
 
   it('should call onAction', async () => {
-    jest.useFakeTimers();
     await platform.onAction('test', undefined, 'Turn off shelly bulb');
     expect(mockLog.info).toHaveBeenCalledWith('onAction called with action:', 'test', 'and value:', 'none', 'and id:', 'Turn off shelly bulb');
     expect(mockLog.info).toHaveBeenCalledWith(expect.stringContaining('Testing webhook'));
-    jest.runAllTimers();
-    jest.useRealTimers();
     await wait(1000);
   });
 
   it('should execute command handler', async () => {
-    jest.useFakeTimers();
     platform.bridgedDevices.forEach(async (device) => {
       await device.executeCommandHandler('on');
       expect(mockLog.info).toHaveBeenCalledWith(`Webhook ${device.deviceName} triggered.`);
     });
-    jest.runAllTimers();
-    jest.useRealTimers();
     await wait(1000);
+    expect(mockLog.notice).toHaveBeenCalledWith(expect.stringContaining(`successful!`));
   });
 
   it('should execute command handler and fail', async () => {
@@ -200,10 +188,12 @@ describe('TestPlatform', () => {
       expect(mockLog.info).toHaveBeenCalledWith(`Webhook ${device.deviceName} triggered.`);
     });
     await wait(1000);
-    expect(mockLog.error).toHaveBeenCalledWith(expect.stringContaining(`failed:`));
+    expect(mockLog.error).toHaveBeenCalledWith(expect.stringContaining(`failed`));
+    (mockConfig as any).webhooks['Turn on shelly bulb'].httpUrl = baseUrl + '/light/0?turn=on';
+    (mockConfig as any).webhooks['Turn off shelly bulb'].httpUrl = baseUrl + '/light/0?turn=off';
   });
 
-  it('should call onAction with formData and fail', async () => {
+  it('should call onAction with formData and succeed', async () => {
     await platform.onAction('test', undefined, 'root_webhooks_newKey_test', {
       name: 'matterbridge-webhooks',
       type: 'DynamicPlatform',
@@ -214,7 +204,7 @@ describe('TestPlatform', () => {
       webhooks: {
         newKey: {
           method: 'GET',
-          httpUrl: 'http://192.168.1.155/light/0?turn=on',
+          httpUrl: baseUrl + '/light/0?turn=on',
           test: false,
         },
       },
@@ -223,16 +213,52 @@ describe('TestPlatform', () => {
     });
     expect(mockLog.info).toHaveBeenCalledWith('onAction called with action:', 'test', 'and value:', 'none', 'and id:', 'root_webhooks_newKey_test');
     expect(mockLog.info).toHaveBeenCalledWith(expect.stringContaining('Testing new webhook'));
-    // await wait(1000);
-    // expect(mockLog.error).toHaveBeenCalledWith(expect.stringContaining(`failed:`));
+    await wait(1000);
+    expect(mockLog.notice).toHaveBeenCalledWith(expect.stringContaining(`successful!`));
   });
 
-  it('should call onAction and fail', async () => {
+  it('should call onAction and succeed', async () => {
     await platform.onAction('test', undefined, 'Turn off shelly bulb');
     expect(mockLog.info).toHaveBeenCalledWith('onAction called with action:', 'test', 'and value:', 'none', 'and id:', 'Turn off shelly bulb');
     expect(mockLog.info).toHaveBeenCalledWith(expect.stringContaining('Testing webhook'));
-    // await wait(1000);
-    // expect(mockLog.error).toHaveBeenCalledWith(expect.stringContaining(`failed:`));
+    await wait(1000);
+    expect(mockLog.notice).toHaveBeenCalledWith(expect.stringContaining(`successful!`));
+  });
+
+  it('should call onAction with formData and fail', async () => {
+    (mockConfig as any).webhooks['Turn on shelly bulb'].httpUrl = baseUrl + '/fail';
+    (mockConfig as any).webhooks['Turn off shelly bulb'].httpUrl = baseUrl + '/fail';
+    await platform.onAction('test', undefined, 'root_webhooks_newKey_test', {
+      name: 'matterbridge-webhooks',
+      type: 'DynamicPlatform',
+      version: '0.0.3',
+      whiteList: [],
+      blackList: [],
+      deviceType: 'Switch',
+      webhooks: {
+        newKey: {
+          method: 'GET',
+          httpUrl: baseUrl + '/fail',
+          test: false,
+        },
+      },
+      debug: true,
+      unregisterOnShutdown: false,
+    });
+    expect(mockLog.info).toHaveBeenCalledWith('onAction called with action:', 'test', 'and value:', 'none', 'and id:', 'root_webhooks_newKey_test');
+    expect(mockLog.info).toHaveBeenCalledWith(expect.stringContaining('Testing new webhook'));
+    await wait(1000);
+    expect(mockLog.error).toHaveBeenCalledWith(expect.stringContaining(`failed`));
+  });
+
+  it('should call onAction and fail', async () => {
+    (mockConfig as any).webhooks['Turn on shelly bulb'].httpUrl = baseUrl + '/fail';
+    (mockConfig as any).webhooks['Turn off shelly bulb'].httpUrl = baseUrl + '/fail';
+    await platform.onAction('test', undefined, 'Turn off shelly bulb');
+    expect(mockLog.info).toHaveBeenCalledWith('onAction called with action:', 'test', 'and value:', 'none', 'and id:', 'Turn off shelly bulb');
+    expect(mockLog.info).toHaveBeenCalledWith(expect.stringContaining('Testing webhook'));
+    await wait(1000);
+    expect(mockLog.error).toHaveBeenCalledWith(expect.stringContaining(`failed`));
   });
 
   it('should call onShutdown with reason', async () => {

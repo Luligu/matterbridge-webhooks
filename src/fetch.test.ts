@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { AnsiLogger } from 'matterbridge/logger';
-import { jest } from '@jest/globals';
 import http, { Server } from 'node:http';
 import { AddressInfo } from 'node:net';
-import { fetch } from './fetch';
+
+import { jest } from '@jest/globals';
+import { AnsiLogger } from 'matterbridge/logger';
+
+import { fetch } from './fetch.ts';
 
 describe('fetch test', () => {
   let server: Server;
@@ -19,42 +19,18 @@ describe('fetch test', () => {
   const debug = false;
 
   if (!debug) {
-    // Spy on and mock AnsiLogger.log
-    loggerLogSpy = jest.spyOn(AnsiLogger.prototype, 'log').mockImplementation((level: string, message: string, ...parameters: any[]) => {
-      //
-    });
-    // Spy on and mock console.log
-    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation((...args: any[]) => {
-      //
-    });
-    // Spy on and mock console.debug
-    consoleDebugSpy = jest.spyOn(console, 'debug').mockImplementation((...args: any[]) => {
-      //
-    });
-    // Spy on and mock console.info
-    consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation((...args: any[]) => {
-      //
-    });
-    // Spy on and mock console.warn
-    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation((...args: any[]) => {
-      //
-    });
-    // Spy on and mock console.error
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation((...args: any[]) => {
-      //
-    });
+    loggerLogSpy = jest.spyOn(AnsiLogger.prototype, 'log').mockImplementation((level: string, message: string, ...parameters: any[]) => {});
+    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation((...args: any[]) => {});
+    consoleDebugSpy = jest.spyOn(console, 'debug').mockImplementation((...args: any[]) => {});
+    consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation((...args: any[]) => {});
+    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation((...args: any[]) => {});
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation((...args: any[]) => {});
   } else {
-    // Spy on AnsiLogger.log
     loggerLogSpy = jest.spyOn(AnsiLogger.prototype, 'log');
-    // Spy on console.log
     consoleLogSpy = jest.spyOn(console, 'log');
-    // Spy on console.debug
     consoleDebugSpy = jest.spyOn(console, 'debug');
-    // Spy on console.info
     consoleInfoSpy = jest.spyOn(console, 'info');
-    // Spy on console.warn
     consoleWarnSpy = jest.spyOn(console, 'warn');
-    // Spy on console.error
     consoleErrorSpy = jest.spyOn(console, 'error');
   }
 
