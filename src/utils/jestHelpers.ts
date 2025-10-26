@@ -3,7 +3,7 @@
  * @file src/helpers.test.ts
  * @author Luca Liguori
  * @created 2025-09-03
- * @version 1.0.9
+ * @version 1.0.10
  * @license Apache-2.0
  *
  * Copyright 2025, 2026, 2027 Luca Liguori.
@@ -48,8 +48,8 @@ import {
   Lifecycle,
 } from 'matterbridge/matter';
 import { RootEndpoint, AggregatorEndpoint } from 'matterbridge/matter/endpoints';
-import { AnsiLogger } from 'matterbridge/logger';
-import { MATTER_STORAGE_NAME, Matterbridge } from 'matterbridge';
+import { AnsiLogger, LogLevel } from 'matterbridge/logger';
+import { MATTER_STORAGE_NAME, Matterbridge, MatterbridgePlatform } from 'matterbridge';
 
 export let loggerLogSpy: jest.SpiedFunction<typeof AnsiLogger.prototype.log>;
 export let consoleLogSpy: jest.SpiedFunction<typeof console.log>;
@@ -61,6 +61,11 @@ export let consoleErrorSpy: jest.SpiedFunction<typeof console.log>;
 export const addBridgedEndpointSpy = jest.spyOn(Matterbridge.prototype, 'addBridgedEndpoint');
 export const removeBridgedEndpointSpy = jest.spyOn(Matterbridge.prototype, 'removeBridgedEndpoint');
 export const removeAllBridgedEndpointsSpy = jest.spyOn(Matterbridge.prototype, 'removeAllBridgedEndpoints');
+
+export let matterbridge: Matterbridge;
+export let server: ServerNode<ServerNode.RootEndpoint>;
+export let aggregator: Endpoint<AggregatorEndpoint>;
+export let log: AnsiLogger;
 
 /**
  * Setup the Jest environment:
@@ -107,6 +112,16 @@ export function setupTest(name: string, debug: boolean = false): void {
  * Set or unset the debug mode.
  *
  * @param {boolean} debug If true, the logging is not mocked.
+ *
+ * ```typescript
+ * // Set the debug mode in test environment
+ * setDebug(true);
+ * ```
+ *
+ * ```typescript
+ * // Reset the debug mode in test environment
+ * setDebug(false);
+ * ```
  */
 export function setDebug(debug: boolean): void {
   if (debug) {
@@ -137,10 +152,16 @@ export function setDebug(debug: boolean): void {
  *
  * @param {string} name - Name for the environment (jest/name).
  * @returns {Promise<Matterbridge>} The Matterbridge instance.
+ *
+ * ```typescript
+ * // Create Matterbridge environment
+ * await createMatterbridgeEnvironment(NAME);
+ * await startMatterbridgeEnvironment(MATTER_PORT);
+ * ```
  */
 export async function createMatterbridgeEnvironment(name: string): Promise<Matterbridge> {
   // Create a MatterbridgeEdge instance
-  const matterbridge = await Matterbridge.loadInstance(false);
+  matterbridge = await Matterbridge.loadInstance(false);
   expect(matterbridge).toBeDefined();
   expect(matterbridge).toBeInstanceOf(Matterbridge);
   matterbridge.matterbridgeVersion = '3.3.0';
@@ -150,6 +171,8 @@ export async function createMatterbridgeEnvironment(name: string): Promise<Matte
   matterbridge.matterbridgeDirectory = path.join('jest', name, '.matterbridge');
   matterbridge.matterbridgePluginDirectory = path.join('jest', name, 'Matterbridge');
   matterbridge.matterbridgeCertDirectory = path.join('jest', name, '.mattercert');
+  matterbridge.log.logLevel = LogLevel.DEBUG;
+  log = matterbridge.log;
 
   // Setup matter environment
   // @ts-expect-error - access to private member for testing
@@ -164,11 +187,16 @@ export async function createMatterbridgeEnvironment(name: string): Promise<Matte
 /**
  * Start the matterbridge environment
  *
- * @param {Matterbridge} matterbridge The Matterbridge instance to start.
  * @param {number} port The matter server port.
  * @returns {Promise<[ServerNode<ServerNode.RootEndpoint>, Endpoint<AggregatorEndpoint>]>} The started server and aggregator.
+ *
+ * ```typescript
+ * // Create Matterbridge environment
+ * await createMatterbridgeEnvironment(NAME);
+ * await startMatterbridgeEnvironment(MATTER_PORT);
+ * ```
  */
-export async function startMatterbridgeEnvironment(matterbridge: Matterbridge, port: number = 5540): Promise<[ServerNode<ServerNode.RootEndpoint>, Endpoint<AggregatorEndpoint>]> {
+export async function startMatterbridgeEnvironment(port: number = 5540): Promise<[ServerNode<ServerNode.RootEndpoint>, Endpoint<AggregatorEndpoint>]> {
   // @ts-expect-error - access to private member for testing
   await matterbridge.startMatterStorage();
   expect(matterbridge.matterStorageService).toBeDefined();
@@ -176,14 +204,14 @@ export async function startMatterbridgeEnvironment(matterbridge: Matterbridge, p
   expect(matterbridge.matterbridgeContext).toBeDefined();
 
   // @ts-expect-error - access to private member for testing
-  const server = await matterbridge.createServerNode(matterbridge.matterbridgeContext, port);
+  server = await matterbridge.createServerNode(matterbridge.matterbridgeContext, port);
   expect(server).toBeDefined();
   expect(server).toBeDefined();
   expect(server.lifecycle.isReady).toBeTruthy();
   matterbridge.serverNode = server;
 
   // @ts-expect-error - access to private member for testing
-  const aggregator = await matterbridge.createAggregatorNode(matterbridge.matterbridgeContext);
+  aggregator = await matterbridge.createAggregatorNode(matterbridge.matterbridgeContext);
   expect(aggregator).toBeDefined();
   matterbridge.aggregatorNode = aggregator;
 
@@ -221,17 +249,34 @@ export async function startMatterbridgeEnvironment(matterbridge: Matterbridge, p
 }
 
 /**
+ * Add a matterbridge platform for testing.
+ *
+ * @param {MatterbridgePlatform} platform The platform to add.
+ * @param {string} name The platform name.
+ *
+ * ```typescript
+ * // Add the platform to the Matterbridge environment
+ * addMatterbridgePlatform(platform, 'matterbridge-test');
+ * ```
+ */
+export function addMatterbridgePlatform(platform: MatterbridgePlatform, name: string): void {
+  expect(platform).toBeDefined();
+
+  // @ts-expect-error accessing private member for testing
+  matterbridge.plugins._plugins.set(name, {});
+  platform['name'] = name;
+}
+
+/**
  * Stop the matterbridge environment
  *
- * @param {Matterbridge} matterbridge The Matterbridge instance to stop.
- * @param {ServerNode<ServerNode.RootEndpoint>} server The server node to stop.
- * @param {Endpoint<AggregatorEndpoint>} aggregator The aggregator endpoint to stop.
+ * ```typescript
+ * // Destroy Matterbridge environment
+ * await stopMatterbridgeEnvironment();
+ * await destroyMatterbridgeEnvironment();
+ * ```
  */
-export async function stopMatterbridgeEnvironment(
-  matterbridge: Matterbridge,
-  server: ServerNode<ServerNode.RootEndpoint>,
-  aggregator: Endpoint<AggregatorEndpoint>,
-): Promise<void> {
+export async function stopMatterbridgeEnvironment(): Promise<void> {
   expect(matterbridge).toBeDefined();
   expect(server).toBeDefined();
   expect(aggregator).toBeDefined();
@@ -266,9 +311,13 @@ export async function stopMatterbridgeEnvironment(
 /**
  * Destroy the matterbridge environment
  *
- * @param {Matterbridge} matterbridge The Matterbridge instance to stop.
+ * ```typescript
+ * // Destroy Matterbridge environment
+ * await stopMatterbridgeEnvironment();
+ * await destroyMatterbridgeEnvironment();
+ * ```
  */
-export async function destroyMatterbridgeEnvironment(matterbridge: Matterbridge): Promise<void> {
+export async function destroyMatterbridgeEnvironment(): Promise<void> {
   await matterbridge.destroyInstance(10);
   // @ts-expect-error - accessing private member for testing
   Matterbridge.instance = undefined;
@@ -520,6 +569,7 @@ export async function addDevice(owner: ServerNode<ServerNode.RootEndpoint> | End
   expect(owner.construction.status).toBe(Lifecycle.Status.Active);
   expect(owner.lifecycle.isPartsReady).toBeTruthy();
 
+  // istanbul ignore next
   try {
     await owner.add(device);
   } catch (error) {
@@ -555,6 +605,7 @@ export async function deleteDevice(owner: ServerNode<ServerNode.RootEndpoint> | 
   expect(owner.construction.status).toBe(Lifecycle.Status.Active);
   expect(owner.lifecycle.isPartsReady).toBeTruthy();
 
+  // istanbul ignore next
   try {
     await device.delete();
   } catch (error) {

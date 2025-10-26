@@ -2,7 +2,6 @@ import http, { Server } from 'node:http';
 import { AddressInfo } from 'node:net';
 
 import { jest } from '@jest/globals';
-import { AnsiLogger } from 'matterbridge/logger';
 
 import { fetch } from './fetch.ts';
 
@@ -10,33 +9,7 @@ describe('fetch test', () => {
   let server: Server;
   let baseUrl: string;
 
-  let loggerLogSpy: jest.SpiedFunction<typeof AnsiLogger.prototype.log>;
-  let consoleLogSpy: jest.SpiedFunction<typeof console.log>;
-  let consoleDebugSpy: jest.SpiedFunction<typeof console.log>;
-  let consoleInfoSpy: jest.SpiedFunction<typeof console.log>;
-  let consoleWarnSpy: jest.SpiedFunction<typeof console.log>;
-  let consoleErrorSpy: jest.SpiedFunction<typeof console.log>;
-  const debug = false;
-
-  if (!debug) {
-    loggerLogSpy = jest.spyOn(AnsiLogger.prototype, 'log').mockImplementation((level: string, message: string, ...parameters: any[]) => {});
-    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation((...args: any[]) => {});
-    consoleDebugSpy = jest.spyOn(console, 'debug').mockImplementation((...args: any[]) => {});
-    consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation((...args: any[]) => {});
-    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation((...args: any[]) => {});
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation((...args: any[]) => {});
-  } else {
-    loggerLogSpy = jest.spyOn(AnsiLogger.prototype, 'log');
-    consoleLogSpy = jest.spyOn(console, 'log');
-    consoleDebugSpy = jest.spyOn(console, 'debug');
-    consoleInfoSpy = jest.spyOn(console, 'info');
-    consoleWarnSpy = jest.spyOn(console, 'warn');
-    consoleErrorSpy = jest.spyOn(console, 'error');
-  }
-
-  beforeAll(() => {
-    //
-  });
+  beforeAll(() => {});
 
   beforeEach(async () => {
     // Clear all mocks

@@ -30,12 +30,6 @@ If you like this project and find it useful, please consider giving it a star on
   <img src="bmc-button.svg" alt="Buy me a coffee" width="120">
 </a>
 
-## Sponsors
-
-I'm looking for sponsors and some help to test the plugin with different platform.
-
-It would be nice to add here a few example of webhooks with different eco systems.
-
 ## Prerequisites
 
 ### Matterbridge
