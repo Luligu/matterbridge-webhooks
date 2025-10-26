@@ -28,7 +28,7 @@ jobs:
         run: npm cache clean --force
 
       - name: Clone matterbridge repo branch dev
-        run: git clone -b dev https://github.com/Luligu/matterbridge.git ../matterbridge
+        run: git clone --depth 1 --single-branch --no-tags -b dev https://github.com/Luligu/matterbridge.git ../matterbridge
 
       - name: Install matterbridge dependencies
         working-directory: ../matterbridge
