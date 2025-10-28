@@ -1,0 +1,11 @@
+{
+  "name": "matterbridge-webhooks",
+  "type": "DynamicPlatform",
+  "version": "1.0.0",
+  "whiteList": [],
+  "blackList": [],
+  "deviceType": "Outlet",
+  "webhooks": {},
+  "debug": false,
+  "unregisterOnShutdown": false
+}

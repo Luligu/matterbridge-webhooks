@@ -8,6 +8,28 @@ If you like this project and find it useful, please consider giving it a star on
   <img src="bmc-button.svg" alt="Buy me a coffee" width="120">
 </a>
 
+## [1.0.0] - 2025-10-28
+
+### Changed
+
+- [package]: Updated dependencies.
+- [package]: Bumped platform to v.1.0.0.
+- [package]: Bumped package to automator v.2.0.10
+- [jest]: Bumped jestHelpers to v.1.0.10.
+- [package]: Require matterbridge v.3.3.0.
+- [package]: Added default config.
+- [platform]: Updated to new signature PlatformMatterbridge.
+- [workflows]: Ignore any .md in build.yaml.
+- [workflows]: Ignore any .md in codeql.yaml.
+- [workflows]: Ignore any .md in codecov.yaml.
+- [workflows]: Improved speed on Node CI.
+- [devcontainer]: Added the plugin name to the container.
+- [devcontainer]: Improved performance of first build with shallow clone.
+
+<a href="https://www.buymeacoffee.com/luligugithub">
+  <img src="bmc-button.svg" alt="Buy me a coffee" width="80">
+</a>
+
 ## [0.0.5] - 2025-07-02
 
 ### Added
