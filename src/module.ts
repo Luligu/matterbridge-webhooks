@@ -90,7 +90,7 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
       this.log.info(`Registering device: ${webhookName} with method ${webhook.method} and url ${webhook.httpUrl}`);
       const device = new MatterbridgeEndpoint(
         [this.config.deviceType === 'Outlet' ? onOffOutlet : this.config.deviceType === 'Light' ? onOffLight : onOffSwitch, bridgedNode],
-        { uniqueStorageKey: webhookName },
+        { id: webhookName },
         this.config.debug as boolean,
       )
         .createDefaultBridgedDeviceBasicInformationClusterServer(
