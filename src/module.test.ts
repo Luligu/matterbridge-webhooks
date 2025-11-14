@@ -20,8 +20,6 @@ import {
   log,
   loggerLogSpy,
   matterbridge,
-  server,
-  aggregator,
   setupTest,
   startMatterbridgeEnvironment,
   stopMatterbridgeEnvironment,
@@ -128,7 +126,7 @@ describe('TestPlatform', () => {
   it('should initialize platform with config name', () => {
     platform = new WebhooksPlatform(matterbridge, log, config);
     // Add the platform to the Matterbridge environment
-    addMatterbridgePlatform(platform, 'matterbridge-webhooks');
+    addMatterbridgePlatform(platform);
     expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, 'Initializing platform:', config.name);
     expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, 'Finished initializing platform:', config.name);
   });
