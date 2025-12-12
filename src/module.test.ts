@@ -10,8 +10,6 @@ import path from 'node:path';
 import { jest } from '@jest/globals';
 import { wait } from 'matterbridge/utils';
 import { LogLevel } from 'matterbridge/logger';
-
-import initializePlugin, { WebhooksPlatform, WebhooksPlatformConfig } from './module.js';
 import {
   addBridgedEndpointSpy,
   addMatterbridgePlatform,
@@ -23,10 +21,12 @@ import {
   setupTest,
   startMatterbridgeEnvironment,
   stopMatterbridgeEnvironment,
-} from './utils/jestHelpers.js';
+} from 'matterbridge/jestutils';
+
+import initializePlugin, { WebhooksPlatform, WebhooksPlatformConfig } from './module.js';
 
 // Setup the test environment
-setupTest(NAME, false);
+await setupTest(NAME, false);
 
 describe('TestPlatform', () => {
   let platform: WebhooksPlatform;
@@ -118,9 +118,9 @@ describe('TestPlatform', () => {
   it('should throw error in load when version is not valid', () => {
     matterbridge.matterbridgeVersion = '1.5.0';
     expect(() => new WebhooksPlatform(matterbridge, log, config)).toThrow(
-      'This plugin requires Matterbridge version >= "3.3.0". Please update Matterbridge to the latest version in the frontend.',
+      'This plugin requires Matterbridge version >= "3.4.0". Please update Matterbridge to the latest version in the frontend.',
     );
-    matterbridge.matterbridgeVersion = '3.3.0';
+    matterbridge.matterbridgeVersion = '3.4.0';
   });
 
   it('should initialize platform with config name', () => {
