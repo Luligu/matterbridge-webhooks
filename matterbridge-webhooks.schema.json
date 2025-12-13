@@ -75,6 +75,65 @@
         }
       }
     },
+    "outlets": {
+      "description": "Define each outlet. Enter in the first field the name of the outlet (replace newKey with the name of the outlet) and in the right panel the urls (i.e. \"[GET|POST]#http://mydomain.com/api/device/on\").",
+      "type": "object",
+      "uniqueItems": true,
+      "additionalProperties": {
+        "type": "object",
+        "description": "Outlet parameters:",
+        "required": ["onUrl", "offUrl"],
+        "properties": {
+          "onUrl": {
+            "type": "string",
+            "title": "Outlet On URL",
+            "description": "URL to turn on the outlet."
+          },
+          "offUrl": {
+            "type": "string",
+            "title": "Outlet Off URL",
+            "description": "URL to turn off the outlet."
+          }
+        }
+      }
+    },
+    "lights": {
+      "description": "Define each light. Enter in the first field the name of the light (replace newKey with the name of the light) and in the right panel the urls (i.e. [GET|POST]#http://mydomain.com/api/device/on).",
+      "type": "object",
+      "uniqueItems": true,
+      "additionalProperties": {
+        "type": "object",
+        "description": "Light parameters:",
+        "required": ["onUrl", "offUrl"],
+        "properties": {
+          "onUrl": {
+            "type": "string",
+            "title": "Light On URL",
+            "description": "URL to turn on the light."
+          },
+          "offUrl": {
+            "type": "string",
+            "title": "Light Off URL",
+            "description": "URL to turn off the light."
+          },
+          "brightnessUrl": {
+            "type": "string",
+            "title": "Light Brightness URL",
+            "description": "URL to adjust the brightness of the light. (i.e. [GET|POST]:http://mydomain.com/api/device?brightness=${BRIGHTNESS})"
+          },
+          "colorTempUrl": {
+            "type": "string",
+            "title": "Light Color Temperature URL",
+            "description": "URL to adjust the color temperature of the light. (i.e. [GET|POST]:http://mydomain.com/api/device?colorTemp=${COLORTEMP})"
+          },
+          "rgbUrl": {
+            "type": "string",
+            "title": "Light RGB URL",
+            "description": "URL to adjust the RGB color of the light. (i.e. [GET|POST]:http://mydomain.com/api/device?rgb=${RGB})"
+          }
+        }
+      }
+    },
     "debug": {
       "description": "Enable the debug for the plugin.",
       "type": "boolean",

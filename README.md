@@ -15,6 +15,8 @@
 
 ---
 
+# Webhook
+
 This plugin allows you to expose any webhooks to Matter.
 
 Features:
@@ -24,11 +26,36 @@ Features:
 - It is possible to choose the method: GET or POST.
 - The webhook can be tested in the frontend.
 
-If you like this project and find it useful, please consider giving it a star on GitHub at https://github.com/Luligu/matterbridge-webhooks and sponsoring it.
+# Webhook device
 
-<a href="https://www.buymeacoffee.com/luligugithub">
-  <img src="bmc-button.svg" alt="Buy me a coffee" width="120">
-</a>
+It allows also to create a device based on webhooks.
+
+Features:
+
+- It is possible to choose the device type from the config.
+- It is possible to set the method with a prefix 'GET#' or 'POST# in the urls. Default if omitted is GET.
+- It is possible to use converters in the url.
+
+## Supported device types:
+
+| Device type    | Urls                                 |
+| -------------- | ------------------------------------ |
+| outlet         | on off                               |
+| onOffLight     | on off                               |
+| dimmerLight    | on off brightness                    |
+| colorTempLight | on off brightness colorTemp          |
+| extendedLight  | on off brightness colorTemp colorRgb |
+
+## Supported converters:
+
+| Converter        | Return value     |
+| ---------------- | ---------------- |
+| ${BRIGHTNESS}    | matter 1-254     |
+| ${BRIGHTNESS100} | percentage 1-100 |
+
+If you like this project and find it useful, please consider giving it a star on [GitHub](https://github.com/Luligu/matterbridge-webhooks) and sponsoring it.
+
+<a href="https://www.buymeacoffee.com/luligugithub"><img src="https://matterbridge.io/bmc-button.svg" alt="Buy me a coffee" width="120"></a>
 
 ## Prerequisites
 
