@@ -23,7 +23,7 @@ import {
   startMatterbridgeEnvironment,
   stopMatterbridgeEnvironment,
 } from 'matterbridge/jestutils';
-import { CommandHandlerData } from 'matterbridge';
+import { colorTemperatureLight, CommandHandlerData, dimmableLight, extendedColorLight, onOffLight, onOffOutlet, onOffSwitch } from 'matterbridge';
 
 import initializePlugin, { WebhooksPlatform, WebhooksPlatformConfig } from './module.js';
 
@@ -44,23 +44,46 @@ describe('TestPlatform', () => {
     version: '0.0.1',
     whiteList: [],
     blackList: [],
-    deviceType: 'Outlet',
+    deviceType: 'Switch',
     webhooks: {
       'Turn on shelly bulb': {
         method: 'POST',
-        httpUrl: '',
+        httpUrl: 'http://127.0.0.1:8585/light/0?turn=on',
         test: false,
       },
       'Turn off shelly bulb': {
         method: 'GET',
-        httpUrl: '',
+        httpUrl: 'http://127.0.0.1:8585/light/0?turn=off',
         test: false,
       },
     },
     outlets: {
-      Outlet1: { onUrl: 'http://127.0.0.1/light/0?turn=on', offUrl: 'http://127.0.0.1/light/0?turn=off' },
+      Outlet1: { onUrl: 'http://127.0.0.1:8585/light/0?turn=on', offUrl: 'http://127.0.0.1:8585/light/0?turn=off' },
     },
-    lights: {},
+    lights: {
+      LightOnOff: { onUrl: 'http://127.0.0.1:8585/light/0?turn=on', offUrl: 'http://127.0.0.1:8585/light/0?turn=off', brightnessUrl: '', colorTempUrl: '', rgbUrl: '' },
+      LightDimmer: {
+        onUrl: 'http://127.0.0.1:8585/light/0?turn=on',
+        offUrl: 'http://127.0.0.1:8585/light/0?turn=off',
+        brightnessUrl: 'http://127.0.0.1:8585/light/0?gain=${BRIGHTNESS100}',
+        colorTempUrl: '',
+        rgbUrl: '',
+      },
+      LightColorTemp: {
+        onUrl: 'http://127.0.0.1:8585/light/0?turn=on',
+        offUrl: 'http://127.0.0.1:8585/light/0?turn=off',
+        brightnessUrl: 'http://127.0.0.1:8585/light/0?gain=${BRIGHTNESS100}',
+        colorTempUrl: 'http://127.0.0.1:8585/light/0?temp=${KELVIN}',
+        rgbUrl: '',
+      },
+      LightRgb: {
+        onUrl: 'http://127.0.0.1:8585/light/0?turn=on',
+        offUrl: 'http://127.0.0.1:8585/light/0?turn=off',
+        brightnessUrl: 'http://127.0.0.1:8585/light/0?gain=${BRIGHTNESS100}',
+        colorTempUrl: 'http://127.0.0.1:8585/light/0?colorTemp=${KELVIN}',
+        rgbUrl: 'http://127.0.0.1:8585/light/0?red=${RED}&green=${GREEN}&blue=${BLUE}',
+      },
+    },
     debug: true,
     unregisterOnShutdown: false,
   };
@@ -80,11 +103,9 @@ describe('TestPlatform', () => {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ success: true }));
     });
-    await new Promise<void>((resolve) => httpServer.listen(0, () => resolve()));
+    await new Promise<void>((resolve) => httpServer.listen(8585, () => resolve()));
     port = (httpServer.address() as AddressInfo).port;
     baseUrl = `http://127.0.0.1:${port}`;
-    config.webhooks['Turn on shelly bulb'].httpUrl = baseUrl + '/light/0?turn=on';
-    config.webhooks['Turn off shelly bulb'].httpUrl = baseUrl + '/light/0?turn=off';
   });
 
   beforeEach(() => {
@@ -140,23 +161,87 @@ describe('TestPlatform', () => {
     expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, 'Finished initializing platform:', config.name);
   });
 
-  it('should parse url', () => {
-    expect(platform.parseUrl('POST#:http://example.com', {} as CommandHandlerData)).toEqual({ method: 'POST', url: 'http://example.com' });
-    expect(platform.parseUrl('GET#:http://example.com', {} as CommandHandlerData)).toEqual({ method: 'GET', url: 'http://example.com' });
-    expect(platform.parseUrl('http://example.com', {} as CommandHandlerData)).toEqual({ method: 'GET', url: 'http://example.com' });
+  it('should parse url', async () => {
+    // await setDebug(true);
+    expect(await platform.parseUrl('outlet', 'Outlet1', 'on', 'POST#' + baseUrl + '/api', {} as CommandHandlerData)).toEqual({ method: 'POST', url: baseUrl + '/api' });
+    expect(await platform.parseUrl('outlet', 'Outlet1', 'on', 'GET#' + baseUrl + '/api', {} as CommandHandlerData)).toEqual({ method: 'GET', url: baseUrl + '/api' });
+    expect(await platform.parseUrl('outlet', 'Outlet1', 'on', baseUrl + '/api', {} as CommandHandlerData)).toEqual({ method: 'GET', url: baseUrl + '/api' });
 
-    expect(platform.parseUrl('http://example.com/${BRIGHTNESS}', { request: { level: 254 } } as any)).toEqual({ method: 'GET', url: 'http://example.com/254' });
-    expect(platform.parseUrl('http://example.com/${BRIGHTNESS100}', { request: { level: 254 } } as any)).toEqual({ method: 'GET', url: 'http://example.com/100' });
+    expect(await platform.parseUrl('outlet', 'Outlet1', 'on', baseUrl + '/api/${LEVEL}/${LEVEL100}', { request: { level: 1 } } as any)).toEqual({
+      method: 'GET',
+      url: baseUrl + '/api/1/0',
+    });
+    expect(await platform.parseUrl('outlet', 'Outlet1', 'on', baseUrl + '/api/${LEVEL}/${LEVEL100}', { request: { level: 128 } } as any)).toEqual({
+      method: 'GET',
+      url: baseUrl + '/api/128/50',
+    });
+    expect(await platform.parseUrl('outlet', 'Outlet1', 'on', baseUrl + '/api/${LEVEL}/${LEVEL100}', { request: { level: 254 } } as any)).toEqual({
+      method: 'GET',
+      url: baseUrl + '/api/254/100',
+    });
+    expect(await platform.parseUrl('outlet', 'Outlet1', 'on', baseUrl + '/api/${KELVIN}/${MIRED}', { request: { colorTemperatureMireds: 300 } } as any)).toEqual({
+      method: 'GET',
+      url: baseUrl + '/api/3333/300',
+    });
+    expect(await platform.parseUrl('outlet', 'Outlet1', 'on', baseUrl + '/api/${COLORX}/${COLORY}', { request: { colorX: 24939, colorY: 24701 } } as any)).toEqual({
+      method: 'GET',
+      url: baseUrl + '/api/0.3805/0.3769',
+    });
+    expect(await platform.parseUrl('outlet', 'Outlet1', 'on', baseUrl + '/api/${HUE}/${SATURATION}', { request: { hue: 180, saturation: 50 } } as any)).toEqual({
+      method: 'GET',
+      url: baseUrl + '/api/255/20',
+    });
+    expect(
+      await platform.parseUrl('outlet', 'Outlet1', 'on', baseUrl + '/api/${level}/${level100}', {
+        attributes: { currentLevel: 128 },
+      } as any),
+    ).toEqual({
+      method: 'GET',
+      url: baseUrl + '/api/128/50',
+    });
+    expect(
+      await platform.parseUrl('outlet', 'Outlet1', 'on', baseUrl + '/api/${mired}/${kelvin}', {
+        attributes: { colorTemperatureMireds: 300, colorTempPhysicalMinMireds: 147, colorTempPhysicalMaxMireds: 500 },
+      } as any),
+    ).toEqual({
+      method: 'GET',
+      url: baseUrl + '/api/300/3333',
+    });
+    expect(await platform.parseUrl('outlet', 'Outlet1', 'on', baseUrl + '/api/${hue}/${saturation}', { attributes: { currentHue: 128, currentSaturation: 128 } } as any)).toEqual({
+      method: 'GET',
+      url: baseUrl + '/api/181/50',
+    });
+    expect(
+      await platform.parseUrl('outlet', 'Outlet1', 'on', baseUrl + '/api/${red}/${green}/${blue}', { attributes: { currentHue: 128, currentSaturation: 128 } } as any),
+    ).toEqual({
+      method: 'GET',
+      url: baseUrl + '/api/64/189/192',
+    });
+    expect(await platform.parseUrl('outlet', 'Outlet1', 'on', baseUrl + '/api/${colorX}/${colorY}', { attributes: { currentX: 24939, currentY: 24701 } } as any)).toEqual({
+      method: 'GET',
+      url: baseUrl + '/api/0.3805/0.3769',
+    });
   });
 
   it('should call onStart with reason', async () => {
     await platform.onStart('Test reason');
     expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, 'onStart called with reason:', 'Test reason');
     expect(addBridgedEndpointSpy).toHaveBeenCalledTimes(Object.keys(config.webhooks).length + Object.keys(config.outlets).length + Object.keys(config.lights).length);
-    expect(platform.getDevices()).toHaveLength(3);
+    expect(platform.getDevices()).toHaveLength(7);
     expect(platform.getDevices()[0].serialNumber).toBe('webhook1');
+    expect(platform.getDevices()[0].deviceType).toBe(onOffSwitch.code);
     expect(platform.getDevices()[1].serialNumber).toBe('webhook2');
+    expect(platform.getDevices()[1].deviceType).toBe(onOffSwitch.code);
     expect(platform.getDevices()[2].serialNumber).toBe('outlet1');
+    expect(platform.getDevices()[2].deviceType).toBe(onOffOutlet.code);
+    expect(platform.getDevices()[3].serialNumber).toBe('light1');
+    expect(platform.getDevices()[3].deviceType).toBe(onOffLight.code);
+    expect(platform.getDevices()[4].serialNumber).toBe('light2');
+    expect(platform.getDevices()[4].deviceType).toBe(dimmableLight.code);
+    expect(platform.getDevices()[5].serialNumber).toBe('light3');
+    expect(platform.getDevices()[5].deviceType).toBe(colorTemperatureLight.code);
+    expect(platform.getDevices()[6].serialNumber).toBe('light4');
+    expect(platform.getDevices()[6].deviceType).toBe(extendedColorLight.code);
   });
 
   it('should call onConfigure', async () => {
@@ -199,8 +284,6 @@ describe('TestPlatform', () => {
   });
 
   it('should execute command handler on outlets', async () => {
-    config.outlets['Outlet1'].onUrl = baseUrl + '/light/0?turn=on';
-    config.outlets['Outlet1'].offUrl = baseUrl + '/light/0?turn=off';
     platform
       .getDevices()
       .filter((device) => device.serialNumber?.startsWith('outlet'))
@@ -228,6 +311,36 @@ describe('TestPlatform', () => {
       });
     await wait(100);
     expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.ERROR, expect.stringContaining(`failed`));
+    config.outlets['Outlet1'].onUrl = baseUrl + '/light/0?turn=on';
+    config.outlets['Outlet1'].offUrl = baseUrl + '/light/0?turn=off';
+  });
+
+  it('should execute command handler on lights', async () => {
+    platform
+      .getDevices()
+      .filter((device) => device.serialNumber?.startsWith('light'))
+      .forEach(async (device) => {
+        await device.executeCommandHandler('on', {}, 'onOff', {}, device);
+        expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} on triggered.`);
+        await device.executeCommandHandler('off', {}, 'onOff', {}, device);
+        expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} off triggered.`);
+        await device.executeCommandHandler('moveToLevel', { level: 128 }, 'levelControl', {}, device);
+        expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToLevel triggered.`);
+        await device.executeCommandHandler('moveToLevelWithOnOff', { level: 128 }, 'levelControl', {}, device);
+        expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToLevelWithOnOff triggered.`);
+        await device.executeCommandHandler('moveToColorTemperature', { colorTemperature: 4000 }, 'colorControl', {}, device);
+        expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToColorTemperature triggered.`);
+        await device.executeCommandHandler('moveToColor', { red: 128, green: 128, blue: 128 }, 'colorControl', {}, device);
+        expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToColor triggered.`);
+        await device.executeCommandHandler('moveToHueAndSaturation', { hue: 128, saturation: 128 }, 'colorControl', {}, device);
+        expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToHueAndSaturation triggered.`);
+        await device.executeCommandHandler('moveToHue', { hue: 128 }, 'colorControl', {}, device);
+        expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToHue triggered.`);
+        await device.executeCommandHandler('moveToSaturation', { saturation: 128 }, 'colorControl', {}, device);
+        expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToSaturation triggered.`);
+      });
+    await wait(100);
+    expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.NOTICE, expect.stringContaining(`successful!`));
   });
 
   it('should call onAction with formData and succeed', async () => {

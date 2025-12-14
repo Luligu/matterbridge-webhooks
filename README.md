@@ -15,7 +15,7 @@
 
 ---
 
-# Webhook
+# Webhooks
 
 This plugin allows you to expose any webhooks to Matter.
 
@@ -26,7 +26,7 @@ Features:
 - It is possible to choose the method: GET or POST.
 - The webhook can be tested in the frontend.
 
-# Webhook device
+# Webhook devices
 
 It allows also to create a device based on webhooks.
 
@@ -46,12 +46,36 @@ Features:
 | colorTempLight | on off brightness colorTemp          |
 | extendedLight  | on off brightness colorTemp colorRgb |
 
-## Supported converters:
+If there is interest, let me know and I will add all other device types.
 
-| Converter        | Return value     |
-| ---------------- | ---------------- |
-| ${BRIGHTNESS}    | matter 1-254     |
-| ${BRIGHTNESS100} | percentage 1-100 |
+## Supported request converters:
+
+| Converter     | Return value        |
+| ------------- | ------------------- |
+| ${LEVEL}      | matter 1-254        |
+| ${LEVEL100}   | percentage 0-100    |
+| ${MIRED}      | colorTemp in mired  |
+| ${KELVIN}     | colorTemp in kelvin |
+| ${HUE}        | hue 0-360           |
+| ${SATURATION} | saturation 0-100    |
+| ${COLORX}     | colorX 0-1          |
+| ${COLORY}     | colorX 0-1          |
+
+## Supported cluster attributes:
+
+| Attributes    | Return value        |
+| ------------- | ------------------- |
+| ${level}      | matter 1-254        |
+| ${level100}   | percentage 0-100    |
+| ${mired}      | colorTemp in mired  |
+| ${kelvin}     | colorTemp in kelvin |
+| ${hue}        | hue 0-360           |
+| ${saturation} | saturation 0-100    |
+| ${colorX}     | colorX 0-1          |
+| ${colorY}     | colorX 0-1          |
+| ${red}        | red 0-255           |
+| ${gree}       | green 0-255         |
+| ${blue}       | blue 0-255          |
 
 If you like this project and find it useful, please consider giving it a star on [GitHub](https://github.com/Luligu/matterbridge-webhooks) and sponsoring it.
 
