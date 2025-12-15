@@ -6,7 +6,7 @@ If you like this project and find it useful, please consider giving it a star on
 
 <a href="https://www.buymeacoffee.com/luligugithub"><img src="https://matterbridge.io/bmc-button.svg" alt="Buy me a coffee" width="120"></a>
 
-## [1.0.3-edge] - Not released
+## [1.1.0-edge.3] - Not released
 
 ### Added Webhook devices
 

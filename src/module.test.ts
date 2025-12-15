@@ -398,9 +398,14 @@ describe('TestPlatform', () => {
       .forEach(async (device) => {
         await device.invokeBehaviorCommand('onOff', 'on', {});
         expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} on triggered`);
+        jest.clearAllMocks();
+
         await device.invokeBehaviorCommand('onOff', 'off', {});
         expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} off triggered`);
+        jest.clearAllMocks();
+
         if (device.serialNumber === 'light1') return;
+
         const moveToLevelRequest: LevelControl.MoveToLevelRequest = {
           level: 128,
           transitionTime: 0,
@@ -409,8 +414,12 @@ describe('TestPlatform', () => {
         };
         await device.invokeBehaviorCommand('levelControl', 'moveToLevel', moveToLevelRequest);
         expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToLevel triggered`);
+        jest.clearAllMocks();
+
         await device.invokeBehaviorCommand('levelControl', 'moveToLevelWithOnOff', moveToLevelRequest);
         expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToLevelWithOnOff triggered`);
+        jest.clearAllMocks();
+
         if (device.serialNumber === 'light2') return;
 
         const moveToColorTempRequest: ColorControl.MoveToColorTemperatureRequest = {
@@ -421,6 +430,8 @@ describe('TestPlatform', () => {
         };
         await device.invokeBehaviorCommand('colorControl', 'moveToColorTemperature', moveToColorTempRequest);
         expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToColorTemperature triggered`);
+        jest.clearAllMocks();
+
         if (device.serialNumber === 'light3') return;
 
         const moveToColorRequest: ColorControl.MoveToColorRequest = {
@@ -432,6 +443,7 @@ describe('TestPlatform', () => {
         };
         await device.invokeBehaviorCommand('colorControl', 'moveToColor', moveToColorRequest);
         expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToColor triggered`);
+        jest.clearAllMocks();
 
         const moveToHueAndSaturationRequest: ColorControl.MoveToHueAndSaturationRequest = {
           hue: 128,
@@ -442,6 +454,7 @@ describe('TestPlatform', () => {
         };
         await device.invokeBehaviorCommand('colorControl', 'moveToHueAndSaturation', moveToHueAndSaturationRequest);
         expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToHueAndSaturation triggered`);
+        jest.clearAllMocks();
 
         const moveToHueRequest: ColorControl.MoveToHueRequest = {
           hue: 128,
@@ -452,6 +465,7 @@ describe('TestPlatform', () => {
         };
         await device.invokeBehaviorCommand('colorControl', 'moveToHue', moveToHueRequest);
         expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToHue triggered`);
+        jest.clearAllMocks();
 
         const moveToSaturationRequest: ColorControl.MoveToSaturationRequest = {
           saturation: 128,
@@ -461,6 +475,7 @@ describe('TestPlatform', () => {
         };
         await device.invokeBehaviorCommand('colorControl', 'moveToSaturation', moveToSaturationRequest);
         expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToSaturation triggered`);
+        jest.clearAllMocks();
       });
     await wait(100);
     expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.NOTICE, expect.stringContaining(`successful!`));
