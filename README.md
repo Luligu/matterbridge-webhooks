@@ -15,9 +15,9 @@
 
 ---
 
-# Webhooks
+This plugin allows you to expose single webhooks or complex webhook devices to Matter.
 
-This plugin allows you to expose any webhooks to Matter.
+# Simple webhooks
 
 Features:
 
@@ -28,13 +28,11 @@ Features:
 
 # Webhook devices
 
-It allows also to create a device based on webhooks.
-
 Features:
 
 - It is possible to choose the device type from the config.
 - It is possible to set the method with a prefix 'GET#' or 'POST# in the urls. Default if omitted is GET.
-- It is possible to use converters in the url.
+- It is possible to use converters and attributes in the url.
 
 ## Supported device types:
 
@@ -85,21 +83,9 @@ If you like this project and find it useful, please consider giving it a star on
 
 ### Matterbridge
 
-Follow these steps to install or update Matterbridge if it is not already installed and up to date:
+See the complete guidelines on [Matterbridge](https://matterbridge.io/README.html) for more information.
 
-```
-npm install -g matterbridge --omit=dev
-```
-
-on Linux you may need the necessary permissions:
-
-```
-sudo npm install -g matterbridge --omit=dev
-```
-
-See the complete guidelines on [Matterbridge](https://github.com/Luligu/matterbridge/blob/main/README.md) for more information.
-
-## How to add a webhook
+## How to add a simple webhook
 
 In the frontend open the plugin config: add a new webhook, enter the webhook name in the first field (replace newKey with the name you want to give to the webhook), select GET or POST and enter the webhook url. The webhook name will be the device name on the controller. The webhook will be exposed like a switch, like an outlet or like a light. When you turn it on, the webhook is called and in a few seconds the switch or the outlet or the light will revert to off.
 

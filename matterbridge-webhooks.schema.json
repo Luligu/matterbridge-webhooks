@@ -106,6 +106,18 @@
         "description": "Light parameters:",
         "required": ["onUrl", "offUrl"],
         "properties": {
+          "minMireds": {
+            "type": "integer",
+            "title": "Minimum Mireds",
+            "default": 154,
+            "description": "Minimum color temperature in Mireds (Kelvin = 1000000 / Mireds). Default is 154 (6500K)."
+          },
+          "maxMireds": {
+            "type": "integer",
+            "title": "Maximum Mireds",
+            "default": 500,
+            "description": "Maximum color temperature in Mireds (Kelvin = 1000000 / Mireds). Default is 500 (2000K)."
+          },
           "onUrl": {
             "type": "string",
             "title": "Light On URL",

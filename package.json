@@ -1,6 +1,6 @@
 {
   "name": "matterbridge-webhooks",
-  "version": "1.1.0-edge.2",
+  "version": "1.1.0-edge.3",
   "description": "Matterbridge webhooks plugin",
   "author": "https://github.com/Luligu",
   "license": "Apache-2.0",
