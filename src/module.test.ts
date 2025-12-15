@@ -373,8 +373,9 @@ describe('TestPlatform', () => {
   });
 
   it('should invoke command handler on lights', async () => {
-    // await setDebug(true);
-    for (const device of platform.getDevices().filter((device) => device.serialNumber?.startsWith('light'))) {
+    const devices = platform.getDevices().filter((device) => device.serialNumber?.startsWith('light'));
+    expect(devices).toHaveLength(4);
+    for (const device of devices) {
       await device.invokeBehaviorCommand('onOff', 'on', {});
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} on triggered`);
       jest.clearAllMocks();
@@ -383,7 +384,7 @@ describe('TestPlatform', () => {
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} off triggered`);
       jest.clearAllMocks();
 
-      if (device.serialNumber === 'light1') return;
+      if (device.serialNumber === 'light1') continue;
 
       const moveToLevelRequest: LevelControl.MoveToLevelRequest = {
         level: 128,
@@ -399,7 +400,7 @@ describe('TestPlatform', () => {
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToLevelWithOnOff triggered`);
       jest.clearAllMocks();
 
-      if (device.serialNumber === 'light2') return;
+      if (device.serialNumber === 'light2') continue;
 
       const moveToColorTempRequest: ColorControl.MoveToColorTemperatureRequest = {
         colorTemperatureMireds: 4000,
@@ -411,7 +412,7 @@ describe('TestPlatform', () => {
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToColorTemperature triggered`);
       jest.clearAllMocks();
 
-      if (device.serialNumber === 'light3') return;
+      if (device.serialNumber === 'light3') continue;
 
       const moveToColorRequest: ColorControl.MoveToColorRequest = {
         colorX: 25000,
@@ -460,21 +461,22 @@ describe('TestPlatform', () => {
   });
 
   it('should execute command handler on lights', async () => {
-    // await setDebug(true);
-    for (const device of platform.getDevices().filter((device) => device.serialNumber?.startsWith('light'))) {
+    const devices = platform.getDevices().filter((device) => device.serialNumber?.startsWith('light'));
+    expect(devices).toHaveLength(4);
+    for (const device of devices) {
       await device.executeCommandHandler('on', {}, 'onOff', {}, device);
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} on triggered`);
       await device.executeCommandHandler('off', {}, 'onOff', {}, device);
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} off triggered`);
-      if (device.serialNumber === 'light1') return;
+      if (device.serialNumber === 'light1') continue;
       await device.executeCommandHandler('moveToLevel', { level: 128 }, 'levelControl', { currentLevel: 128 }, device);
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToLevel triggered`);
       await device.executeCommandHandler('moveToLevelWithOnOff', { level: 128 }, 'levelControl', { currentLevel: 128 }, device);
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToLevelWithOnOff triggered`);
-      if (device.serialNumber === 'light2') return;
+      if (device.serialNumber === 'light2') continue;
       await device.executeCommandHandler('moveToColorTemperature', { colorTemperatureMireds: 4000 }, 'colorControl', { colorTemperatureMireds: 4000 }, device);
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToColorTemperature triggered`);
-      if (device.serialNumber === 'light3') return;
+      if (device.serialNumber === 'light3') continue;
       await device.executeCommandHandler('moveToColor', { colorX: 25000, colorY: 25000 }, 'colorControl', { currentHue: 128, currentSaturation: 128 }, device);
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToColor triggered`);
       await device.executeCommandHandler('moveToHueAndSaturation', { hue: 128, saturation: 128 }, 'colorControl', { currentHue: 128, currentSaturation: 128 }, device);
