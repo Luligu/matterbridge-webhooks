@@ -6,6 +6,8 @@
   "blackList": [],
   "deviceType": "Outlet",
   "webhooks": {},
+  "outlets": {},
+  "lights": {},
   "debug": false,
   "unregisterOnShutdown": false
 }

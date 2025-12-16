@@ -15,7 +15,9 @@
 
 ---
 
-This plugin allows you to expose any webhooks to Matter.
+This plugin allows you to expose single webhooks or complex webhook devices to Matter.
+
+# Simple webhooks
 
 Features:
 
@@ -24,31 +26,66 @@ Features:
 - It is possible to choose the method: GET or POST.
 - The webhook can be tested in the frontend.
 
-If you like this project and find it useful, please consider giving it a star on GitHub at https://github.com/Luligu/matterbridge-webhooks and sponsoring it.
+# Webhook devices
 
-<a href="https://www.buymeacoffee.com/luligugithub">
-  <img src="bmc-button.svg" alt="Buy me a coffee" width="120">
-</a>
+Features:
+
+- It is possible to choose the device type from the config.
+- It is possible to set the method with a prefix 'GET#' or 'POST# in the urls. Default if omitted is GET.
+- It is possible to use converters and attributes in the url.
+
+## Supported device types:
+
+| Device type    | Urls                                 |
+| -------------- | ------------------------------------ |
+| outlet         | on off                               |
+| onOffLight     | on off                               |
+| dimmerLight    | on off brightness                    |
+| colorTempLight | on off brightness colorTemp          |
+| extendedLight  | on off brightness colorTemp colorRgb |
+
+If there is interest, let me know and I will add all other device types.
+
+## Supported request converters:
+
+| Converter     | Return value        |
+| ------------- | ------------------- |
+| ${LEVEL}      | matter 1-254        |
+| ${LEVEL100}   | percentage 0-100    |
+| ${MIRED}      | colorTemp in mired  |
+| ${KELVIN}     | colorTemp in kelvin |
+| ${HUE}        | hue 0-360           |
+| ${SATURATION} | saturation 0-100    |
+| ${COLORX}     | colorX 0-1          |
+| ${COLORY}     | colorX 0-1          |
+
+## Supported cluster attributes:
+
+| Attributes    | Return value        |
+| ------------- | ------------------- |
+| ${level}      | matter 1-254        |
+| ${level100}   | percentage 0-100    |
+| ${mired}      | colorTemp in mired  |
+| ${kelvin}     | colorTemp in kelvin |
+| ${hue}        | hue 0-360           |
+| ${saturation} | saturation 0-100    |
+| ${colorX}     | colorX 0-1          |
+| ${colorY}     | colorX 0-1          |
+| ${red}        | red 0-255           |
+| ${gree}       | green 0-255         |
+| ${blue}       | blue 0-255          |
+
+If you like this project and find it useful, please consider giving it a star on [GitHub](https://github.com/Luligu/matterbridge-webhooks) and sponsoring it.
+
+<a href="https://www.buymeacoffee.com/luligugithub"><img src="https://matterbridge.io/bmc-button.svg" alt="Buy me a coffee" width="120"></a>
 
 ## Prerequisites
 
 ### Matterbridge
 
-Follow these steps to install or update Matterbridge if it is not already installed and up to date:
+See the complete guidelines on [Matterbridge](https://matterbridge.io/README.html) for more information.
 
-```
-npm install -g matterbridge --omit=dev
-```
-
-on Linux you may need the necessary permissions:
-
-```
-sudo npm install -g matterbridge --omit=dev
-```
-
-See the complete guidelines on [Matterbridge](https://github.com/Luligu/matterbridge/blob/main/README.md) for more information.
-
-## How to add a webhook
+## How to add a simple webhook
 
 In the frontend open the plugin config: add a new webhook, enter the webhook name in the first field (replace newKey with the name you want to give to the webhook), select GET or POST and enter the webhook url. The webhook name will be the device name on the controller. The webhook will be exposed like a switch, like an outlet or like a light. When you turn it on, the webhook is called and in a few seconds the switch or the outlet or the light will revert to off.
 

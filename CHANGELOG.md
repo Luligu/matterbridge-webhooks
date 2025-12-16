@@ -6,6 +6,66 @@ If you like this project and find it useful, please consider giving it a star on
 
 <a href="https://www.buymeacoffee.com/luligugithub"><img src="https://matterbridge.io/bmc-button.svg" alt="Buy me a coffee" width="120"></a>
 
+## [1.1.0] - 2025-12-16
+
+### Added Webhook devices
+
+It allows to create a device based on webhooks.
+
+Features:
+
+- It is possible to choose the device type from the config.
+- It is possible to set the method with a prefix 'GET#' or 'POST# in the urls. Default if omitted is GET.
+- It is possible to use converters in the url.
+
+### Supported device types:
+
+| Device type    | Urls                                 |
+| -------------- | ------------------------------------ |
+| outlet         | on off                               |
+| onOffLight     | on off                               |
+| dimmerLight    | on off brightness                    |
+| colorTempLight | on off brightness colorTemp          |
+| extendedLight  | on off brightness colorTemp colorRgb |
+
+If there is interest, let me know and I will add all other device types.
+
+### Supported request converters:
+
+| Converter     | Return value        |
+| ------------- | ------------------- |
+| ${LEVEL}      | matter 1-254        |
+| ${LEVEL100}   | percentage 0-100    |
+| ${MIRED}      | colorTemp in mired  |
+| ${KELVIN}     | colorTemp in kelvin |
+| ${HUE}        | hue 0-360           |
+| ${SATURATION} | saturation 0-100    |
+| ${COLORX}     | colorX 0-1          |
+| ${COLORY}     | colorX 0-1          |
+
+### Supported cluster attributes:
+
+| Attributes    | Return value        |
+| ------------- | ------------------- |
+| ${level}      | matter 1-254        |
+| ${level100}   | percentage 0-100    |
+| ${mired}      | colorTemp in mired  |
+| ${kelvin}     | colorTemp in kelvin |
+| ${hue}        | hue 0-360           |
+| ${saturation} | saturation 0-100    |
+| ${colorX}     | colorX 0-1          |
+| ${colorY}     | colorX 0-1          |
+| ${red}        | red 0-255           |
+| ${gree}       | green 0-255         |
+| ${blue}       | blue 0-255          |
+
+### Changed
+
+- [package]: Updated dependencies.
+- [package]: Bumped package to automator v.2.1.1.
+
+<a href="https://www.buymeacoffee.com/luligugithub"><img src="https://matterbridge.io/bmc-button.svg" alt="Buy me a coffee" width="80"></a>
+
 ## [1.0.2] - 2025-12-12
 
 ### Changed
