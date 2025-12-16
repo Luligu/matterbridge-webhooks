@@ -136,12 +136,12 @@
           "colorTempUrl": {
             "type": "string",
             "title": "Light Color Temperature URL",
-            "description": "URL to adjust the color temperature of the light. (i.e. [GET|POST]:http://mydomain.com/api/device?colorTemp=${COLORTEMP})"
+            "description": "URL to adjust the color temperature of the light. (i.e. [GET|POST]:http://mydomain.com/api/device?colorTemp=${MIRED})"
           },
           "rgbUrl": {
             "type": "string",
             "title": "Light RGB URL",
-            "description": "URL to adjust the RGB color of the light. (i.e. [GET|POST]:http://mydomain.com/api/device?rgb=${RGB})"
+            "description": "URL to adjust the RGB color of the light. (i.e. [GET|POST]:http://mydomain.com/api/device?hue=${HUE}&saturation=${SATURATION})"
           }
         }
       }

@@ -18,7 +18,7 @@ Features:
 - It is possible to set the method with a prefix 'GET#' or 'POST# in the urls. Default if omitted is GET.
 - It is possible to use converters in the url.
 
-## Supported device types:
+### Supported device types:
 
 | Device type    | Urls                                 |
 | -------------- | ------------------------------------ |
@@ -30,7 +30,7 @@ Features:
 
 If there is interest, let me know and I will add all other device types.
 
-## Supported request converters:
+### Supported request converters:
 
 | Converter     | Return value        |
 | ------------- | ------------------- |
@@ -43,7 +43,7 @@ If there is interest, let me know and I will add all other device types.
 | ${COLORX}     | colorX 0-1          |
 | ${COLORY}     | colorX 0-1          |
 
-## Supported cluster attributes:
+### Supported cluster attributes:
 
 | Attributes    | Return value        |
 | ------------- | ------------------- |
