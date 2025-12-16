@@ -59,6 +59,11 @@ If there is interest, let me know and I will add all other device types.
 | ${gree}       | green 0-255         |
 | ${blue}       | blue 0-255          |
 
+### Changed
+
+- [package]: Updated dependencies.
+- [package]: Bumped package to automator v.2.1.1.
+
 <a href="https://www.buymeacoffee.com/luligugithub"><img src="https://matterbridge.io/bmc-button.svg" alt="Buy me a coffee" width="80"></a>
 
 ## [1.0.2] - 2025-12-12
