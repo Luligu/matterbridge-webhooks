@@ -58,7 +58,7 @@
           "method": {
             "type": "string",
             "default": "GET",
-            "enum": ["GET", "POST"],
+            "enum": ["GET", "POST", "PUT"],
             "description": "HTTP method to use for the webhook."
           },
           "httpUrl": {
@@ -76,7 +76,7 @@
       }
     },
     "outlets": {
-      "description": "Define each outlet. Enter in the first field the name of the outlet (replace newKey with the name of the outlet) and in the right panel the urls (i.e. \"[GET|POST]#http://mydomain.com/api/device/on\").",
+      "description": "Define each outlet. Enter in the first field the name of the outlet (replace newKey with the name of the outlet) and in the right panel the urls (i.e. \"[GET|POST|PUT]#http://mydomain.com/api/device/on\").",
       "type": "object",
       "uniqueItems": true,
       "additionalProperties": {
@@ -98,7 +98,7 @@
       }
     },
     "lights": {
-      "description": "Define each light. Enter in the first field the name of the light (replace newKey with the name of the light) and in the right panel the urls (i.e. [GET|POST]#http://mydomain.com/api/device/on).",
+      "description": "Define each light. Enter in the first field the name of the light (replace newKey with the name of the light) and in the right panel the urls (i.e. [GET|POST|PUT]#http://mydomain.com/api/device/on).",
       "type": "object",
       "uniqueItems": true,
       "additionalProperties": {
@@ -131,17 +131,17 @@
           "brightnessUrl": {
             "type": "string",
             "title": "Light Brightness URL",
-            "description": "URL to adjust the brightness of the light. (i.e. [GET|POST]:http://mydomain.com/api/device?brightness=${BRIGHTNESS})"
+            "description": "URL to adjust the brightness of the light. (i.e. [GET|POST|PUT]#http://mydomain.com/api/device?brightness=${BRIGHTNESS})"
           },
           "colorTempUrl": {
             "type": "string",
             "title": "Light Color Temperature URL",
-            "description": "URL to adjust the color temperature of the light. (i.e. [GET|POST]:http://mydomain.com/api/device?colorTemp=${MIRED})"
+            "description": "URL to adjust the color temperature of the light. (i.e. [GET|POST|PUT]#http://mydomain.com/api/device?colorTemp=${MIRED})"
           },
           "rgbUrl": {
             "type": "string",
             "title": "Light RGB URL",
-            "description": "URL to adjust the RGB color of the light. (i.e. [GET|POST]:http://mydomain.com/api/device?hue=${HUE}&saturation=${SATURATION})"
+            "description": "URL to adjust the RGB color of the light. (i.e. [GET|POST|PUT]#http://mydomain.com/api/device?hue=${HUE}&saturation=${SATURATION})"
           }
         }
       }

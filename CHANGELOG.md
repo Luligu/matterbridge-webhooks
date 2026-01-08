@@ -6,6 +6,12 @@ If you like this project and find it useful, please consider giving it a star on
 
 <a href="https://www.buymeacoffee.com/luligugithub"><img src="https://matterbridge.io/bmc-button.svg" alt="Buy me a coffee" width="120"></a>
 
+## [Unreleased]
+
+### Added
+
+- [platform]: Added PUT HTTP method support for webhooks and webhook devices.
+
 ## [1.1.0] - 2025-12-16
 
 ### Added Webhook devices

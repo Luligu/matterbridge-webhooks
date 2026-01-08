@@ -100,6 +100,27 @@ describe('fetch test', () => {
     expect(result).toEqual(postData);
   });
 
+  test('Successful PUT request', async () => {
+    // Server echoes back the PUT JSON.
+    server = http.createServer((req, res) => {
+      let body = '';
+      req.on('data', (chunk) => {
+        body += chunk;
+      });
+      req.on('end', () => {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(body);
+      });
+    });
+    await new Promise<void>((resolve) => server.listen(0, () => resolve()));
+    const port = (server.address() as AddressInfo).port;
+    baseUrl = `http://127.0.0.1:${port}`;
+
+    const putData = { key: 'updated', num: 100 };
+    const result = await fetch<typeof putData>(baseUrl, 'PUT', putData);
+    expect(result).toEqual(putData);
+  });
+
   test('Non-success status code should reject', async () => {
     // Server responds with 404.
     server = http.createServer((req, res) => {

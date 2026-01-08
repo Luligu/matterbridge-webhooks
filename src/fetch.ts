@@ -36,12 +36,12 @@ interface JsonArray extends Array<JsonValue> {}
  * Fetches data from a given URL using the specified method and data.
  *
  * @param {string} url - The URL to fetch data from.
- * @param {'POST' | 'GET'} method - The HTTP method to use for the request. Defaults to 'GET'.
+ * @param {'POST' | 'GET' | 'PUT'} method - The HTTP method to use for the request. Defaults to 'GET'.
  * @param {Record<string, JsonValue>} data - The data to send with the request, if applicable. Defaults to an empty object.
  * @param {number} timeout - The timeout for the request in milliseconds. Defaults to 5000ms (5 seconds).
  * @returns {Promise<T>} - A promise that resolves to the parsed JSON response.
  */
-export async function fetch<T>(url: string, method: 'POST' | 'GET' = 'GET', data: Record<string, JsonValue> = {}, timeout = 5000): Promise<T> {
+export async function fetch<T>(url: string, method: 'POST' | 'GET' | 'PUT' = 'GET', data: Record<string, JsonValue> = {}, timeout = 5000): Promise<T> {
   return new Promise((resolve, reject) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
@@ -78,7 +78,7 @@ export async function fetch<T>(url: string, method: 'POST' | 'GET' = 'GET', data
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        ...(method === 'POST' && { 'Content-Length': Buffer.byteLength(jsonData) }),
+        ...((method === 'POST' || method === 'PUT') && { 'Content-Length': Buffer.byteLength(jsonData) }),
       },
       signal: controller.signal,
     };
@@ -116,8 +116,8 @@ export async function fetch<T>(url: string, method: 'POST' | 'GET' = 'GET', data
       reject(new Error(`Request failed: ${error instanceof Error ? error.message : error}`));
     });
 
-    // Send the JSON data only if the method is POST
-    if (method === 'POST') {
+    // Send the JSON data only if the method is POST or PUT
+    if (method === 'POST' || method === 'PUT') {
       req.write(jsonData);
     }
     req.end();
