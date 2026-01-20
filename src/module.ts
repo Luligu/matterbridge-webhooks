@@ -44,7 +44,7 @@ import { ColorControl, LevelControl } from 'matterbridge/matter/clusters';
 import { fetch } from './fetch.js';
 
 export interface WebhookConfig {
-  method: 'POST' | 'GET';
+  method: 'POST' | 'GET' | 'PUT';
   httpUrl: string;
   test: boolean;
 }
@@ -311,15 +311,15 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
    * @param {string} command - The command to parse.
    * @param {string} url - The URL to parse.
    * @param {CommandHandlerData} [data] - The command handler data.
-   * @returns {Promise<{ method: 'POST' | 'GET'; url: string }>} - The parsed method and URL.
+   * @returns {Promise<{ method: 'POST' | 'GET' | 'PUT'; url: string }>} - The parsed method and URL.
    */
-  async parseUrl(deviceType: string, deviceName: string, command: string, url: string, data: CommandHandlerData): Promise<{ method: 'POST' | 'GET'; url: string }> {
+  async parseUrl(deviceType: string, deviceName: string, command: string, url: string, data: CommandHandlerData): Promise<{ method: 'POST' | 'GET' | 'PUT'; url: string }> {
     this.log.info(`Webhook ${deviceType} ${deviceName} ${command} triggered`);
     const endpoint = data.endpoint;
     this.log.debug(`Webhook ${deviceType} ${deviceName} ${command} triggered on endpoint ${endpoint?.deviceName}`);
 
     // Determine method
-    let method: 'POST' | 'GET' = 'GET';
+    let method: 'POST' | 'GET' | 'PUT' = 'GET';
     let parsedUrl = url;
     if (url.startsWith('GET#')) {
       method = 'GET';
@@ -327,6 +327,9 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
     } else if (url.startsWith('POST#')) {
       method = 'POST';
       parsedUrl = url.replace('POST#', '');
+    } else if (url.startsWith('PUT#')) {
+      method = 'PUT';
+      parsedUrl = url.replace('PUT#', '');
     }
 
     // Request based replacements

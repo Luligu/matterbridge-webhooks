@@ -23,7 +23,7 @@ Features:
 
 - The webhooks parameters can easily be entered in the frontend.
 - It is possible to choose how to expose the webhooks: Switch, Outlet or Light.
-- It is possible to choose the method: GET or POST.
+- It is possible to choose the method: GET, POST or PUT.
 - The webhook can be tested in the frontend.
 
 # Webhook devices
@@ -31,7 +31,7 @@ Features:
 Features:
 
 - It is possible to choose the device type from the config.
-- It is possible to set the method with a prefix 'GET#' or 'POST# in the urls. Default if omitted is GET.
+- It is possible to set the method with a prefix 'GET#', 'POST#' or 'PUT#' in the urls. Default if omitted is GET.
 - It is possible to use converters and attributes in the url.
 
 ## Supported device types:
@@ -87,7 +87,7 @@ See the complete guidelines on [Matterbridge](https://matterbridge.io/README.htm
 
 ## How to add a simple webhook
 
-In the frontend open the plugin config: add a new webhook, enter the webhook name in the first field (replace newKey with the name you want to give to the webhook), select GET or POST and enter the webhook url. The webhook name will be the device name on the controller. The webhook will be exposed like a switch, like an outlet or like a light. When you turn it on, the webhook is called and in a few seconds the switch or the outlet or the light will revert to off.
+In the frontend open the plugin config: add a new webhook, enter the webhook name in the first field (replace newKey with the name you want to give to the webhook), select GET, POST or PUT and enter the webhook url. The webhook name will be the device name on the controller. The webhook will be exposed like a switch, like an outlet or like a light. When you turn it on, the webhook is called and in a few seconds the switch or the outlet or the light will revert to off.
 
 It is possible to test directly the webhook from the config editor.
 
