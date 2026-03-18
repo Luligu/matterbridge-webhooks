@@ -98,7 +98,7 @@ It is possible to test directly the webhook from the config editor.
 
 ## How to use HTTP Basic Authentication
 
-If your target device is protected with HTTP Basic Authentication, you can pass credentials directly in the URL (e.g. `http://username:password@192.168.1.50/path`). If the password contains special characters (like `@` or `:`), URL-encode it. Note that the plugin may log the full URL during debug, so credentials embedded in URLs can end up in your logs; if that is a concern, use a local reverse-proxy that injects the `Authorization` header instead.
+If your target device is protected with HTTP Basic Authentication, you can pass credentials directly in the URL (e.g. `http://username:password@192.168.1.50/path`). If the password contains special characters (like `@` or `:`), URL-encode it. Note that the plugin may log the full URL during debug, so credentials embedded in URLs can end up in your logs; if that is a concern, don't share the logs and add a password to the frontend.
 
 ## Examples
 

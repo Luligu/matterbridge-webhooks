@@ -311,7 +311,7 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
    * @param {string} command - The command to parse.
    * @param {string} url - The URL to parse.
    * @param {CommandHandlerData} [data] - The command handler data.
-  * @returns {Promise<{ method: 'POST' | 'GET' | 'PUT'; url: string }>} - The parsed method and URL.
+   * @returns {Promise<{ method: 'POST' | 'GET' | 'PUT'; url: string }>} - The parsed method and URL.
    */
   async parseUrl(deviceType: string, deviceName: string, command: string, url: string, data: CommandHandlerData): Promise<{ method: 'POST' | 'GET' | 'PUT'; url: string }> {
     this.log.info(`Webhook ${deviceType} ${deviceName} ${command} triggered`);
