@@ -41,7 +41,7 @@ interface JsonArray extends Array<JsonValue> {}
  * @param {number} timeout - The timeout for the request in milliseconds. Defaults to 5000ms (5 seconds).
  * @returns {Promise<T>} - A promise that resolves to the parsed JSON response.
  */
-export async function fetch<T>(url: string, method: 'POST' | 'GET' | 'PUT' = 'GET', data: Record<string, JsonValue> = {}, timeout = 5000): Promise<T> {
+export async function fetch<T>(url: string, method: 'POST' | 'GET' | 'PUT' = 'GET', data: Record<string, JsonValue> = {}, timeout: number = 5000): Promise<T> {
   return new Promise((resolve, reject) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
