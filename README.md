@@ -28,7 +28,7 @@ Features:
 
 - The webhooks parameters can easily be entered in the frontend.
 - It is possible to choose how to expose the webhooks: Switch, Outlet or Light.
-- It is possible to choose the method: GET or POST.
+- It is possible to choose the method: GET, POST or PUT.
 - The webhook can be tested in the frontend.
 
 # Webhook devices
@@ -36,7 +36,7 @@ Features:
 Features:
 
 - It is possible to choose the device type from the config.
-- It is possible to set the method with a prefix 'GET#' or 'POST# in the urls. Default if omitted is GET.
+- It is possible to set the method with a prefix 'GET#', 'POST#' or 'PUT#' in the urls. Default if omitted is GET.
 - It is possible to use converters and attributes in the url.
 
 ## Supported device types:
@@ -107,6 +107,12 @@ Change 192.168.1.XXX with your device IP address.
 To turn on a shelly gen 1 device with ip 192.168.1.155 the url is http://192.168.1.XXX/light/0?turn=on.
 
 To turn off a shelly gen 1 device with ip 192.168.1.155 the url is http://192.168.1.XXX/light/0?turn=off.
+
+### Shelly 1 Gen 2+
+
+To turn on a shelly gen 2+ device with ip 192.168.68.75 the url is http://192.168.68.75/rpc/Switch.Set?id=0&on=true.
+
+To turn off a shelly gen 2+ device with ip 192.168.68.75 the url is http://192.168.68.75/rpc/Switch.Set?id=0&on=false.
 
 ### Shelly Trv Gen 1
 

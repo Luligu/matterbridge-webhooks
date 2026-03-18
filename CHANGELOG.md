@@ -26,6 +26,25 @@ If you like this project and find it useful, please consider giving it a star on
 
 <a href="https://www.buymeacoffee.com/luligugithub"><img src="https://matterbridge.io/assets/bmc-button.svg" alt="Buy me a coffee" width="120"></a>
 
+## [1.1.3] - Deb branch
+
+### Added
+
+- [fetch]: Added PUT HTTP method.
+
+### Changed
+
+- [package]: Update dependencies.
+- [package]: Bump package to `automator` v.3.1.2.
+- [package]: Bump `eslint` to v.10.0.3.
+- [package]: Bump `typescript-eslint` to v.8.57.1.
+- [package]: Add `@eslint/json`.
+- [package]: Add `@eslint/markdown`.
+- [package]: Add `CONTRIBUTING.md`.
+- [package]: Add `STYLEGUIDE.md`.
+- [package]: Replace `eslint-plugin-import` with `eslint-plugin-simple-import-sort`.
+- [package]: Bump `node-persist-manager` to v.2.0.1.
+
 ## [1.1.2] - 2026-02-07
 
 ### Changed
