@@ -26,11 +26,12 @@ If you like this project and find it useful, please consider giving it a star on
 
 <a href="https://www.buymeacoffee.com/luligugithub"><img src="https://matterbridge.io/assets/bmc-button.svg" alt="Buy me a coffee" width="120"></a>
 
-## [1.1.3] - Deb branch
+## [1.1.3] - Dev branch
 
 ### Added
 
-- [fetch]: Added PUT HTTP method.
+- [fetch]: Add `PUT` HTTP method.
+- [docs]: Update README with `PUT` usage and `Basic Auth` URL notes.
 
 ### Changed
 
@@ -44,6 +45,8 @@ If you like this project and find it useful, please consider giving it a star on
 - [package]: Add `STYLEGUIDE.md`.
 - [package]: Replace `eslint-plugin-import` with `eslint-plugin-simple-import-sort`.
 - [package]: Bump `node-persist-manager` to v.2.0.1.
+
+<a href="https://www.buymeacoffee.com/luligugithub"><img src="https://matterbridge.io/assets/bmc-button.svg" alt="Buy me a coffee" width="80"></a>
 
 ## [1.1.2] - 2026-02-07
 

@@ -92,9 +92,13 @@ See the complete guidelines on [Matterbridge](https://matterbridge.io/README.htm
 
 ## How to add a simple webhook
 
-In the frontend open the plugin config: add a new webhook, enter the webhook name in the first field (replace newKey with the name you want to give to the webhook), select GET or POST and enter the webhook url. The webhook name will be the device name on the controller. The webhook will be exposed like a switch, like an outlet or like a light. When you turn it on, the webhook is called and in a few seconds the switch or the outlet or the light will revert to off.
+In the frontend open the plugin config: add a new webhook, enter the webhook name in the first field (replace newKey with the name you want to give to the webhook), select GET, POST or PUT and enter the webhook url. The webhook name will be the device name on the controller. The webhook will be exposed like a switch, like an outlet or like a light. When you turn it on, the webhook is called and in a few seconds the switch or the outlet or the light will revert to off.
 
 It is possible to test directly the webhook from the config editor.
+
+## How to use HTTP Basic Authentication
+
+If your target device is protected with HTTP Basic Authentication, you can pass credentials directly in the URL (e.g. `http://username:password@192.168.1.50/path`). If the password contains special characters (like `@` or `:`), URL-encode it. Note that the plugin may log the full URL during debug, so credentials embedded in URLs can end up in your logs; if that is a concern, use a local reverse-proxy that injects the `Authorization` header instead.
 
 ## Examples
 
@@ -104,9 +108,9 @@ Change 192.168.1.XXX with your device IP address.
 
 ### Shelly 1 Gen 1
 
-To turn on a shelly gen 1 device with ip 192.168.1.155 the url is http://192.168.1.XXX/light/0?turn=on.
+To turn on a shelly gen 1 device with ip 192.168.1.155 the url is http://192.168.1.155/light/0?turn=on.
 
-To turn off a shelly gen 1 device with ip 192.168.1.155 the url is http://192.168.1.XXX/light/0?turn=off.
+To turn off a shelly gen 1 device with ip 192.168.1.155 the url is http://192.168.1.155/light/0?turn=off.
 
 ### Shelly 1 Gen 2+
 
