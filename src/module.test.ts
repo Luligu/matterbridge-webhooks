@@ -1,16 +1,14 @@
-const MATTER_PORT = 6000;
 const NAME = 'Platform';
-const HOMEDIR = path.join('jest', NAME);
+const MATTER_PORT = 6000;
 
 // Mock the fetch module
 import http, { Server } from 'node:http';
 import { AddressInfo } from 'node:net';
-import path from 'node:path';
 
 import { jest } from '@jest/globals';
 import { colorTemperatureLight, CommandHandlerData, dimmableLight, extendedColorLight, onOffLight, onOffOutlet, onOffSwitch } from 'matterbridge';
 import {
-  addBridgedEndpointSpy,
+  addBridgedEndpointMatterbridgeSpy,
   addMatterbridgePlatform,
   createMatterbridgeEnvironment,
   destroyMatterbridgeEnvironment,
@@ -110,7 +108,7 @@ describe('TestPlatform', () => {
 
   beforeAll(async () => {
     // Create Matterbridge environment
-    await createMatterbridgeEnvironment(NAME);
+    await createMatterbridgeEnvironment();
     await startMatterbridgeEnvironment(MATTER_PORT);
 
     // Create the http server. This server is used to mock the HTTP requests made by the webhooks.
@@ -248,7 +246,7 @@ describe('TestPlatform', () => {
     expect(
       await platform.parseUrl('light', 'Light1', 'on', baseUrl + '/api/${level}/${level100}', {
         attributes: { currentLevel: 128 },
-        endpoint: { stateOf: () => ({ currentLevel: 128 }) } as unknown as Endpoint,
+        endpoint: { getCluster: () => ({ currentLevel: 128 }) } as unknown as Endpoint,
         cluster: 'levelControl',
       } as any),
     ).toEqual({
@@ -258,7 +256,7 @@ describe('TestPlatform', () => {
     expect(
       await platform.parseUrl('light', 'Light1', 'on', baseUrl + '/api/${mired}/${kelvin}', {
         attributes: { colorTemperatureMireds: 300, colorTempPhysicalMinMireds: 147, colorTempPhysicalMaxMireds: 500 },
-        endpoint: { stateOf: () => ({ colorTemperatureMireds: 300, colorTempPhysicalMinMireds: 147, colorTempPhysicalMaxMireds: 500 }) } as unknown as Endpoint,
+        endpoint: { getCluster: () => ({ colorTemperatureMireds: 300, colorTempPhysicalMinMireds: 147, colorTempPhysicalMaxMireds: 500 }) } as unknown as Endpoint,
         cluster: 'colorControl',
       } as any),
     ).toEqual({
@@ -268,7 +266,7 @@ describe('TestPlatform', () => {
     expect(
       await platform.parseUrl('light', 'Light1', 'on', baseUrl + '/api/${hue}/${saturation}', {
         attributes: { currentHue: 128, currentSaturation: 128 },
-        endpoint: { stateOf: () => ({ currentHue: 128, currentSaturation: 128 }) } as unknown as Endpoint,
+        endpoint: { getCluster: () => ({ currentHue: 128, currentSaturation: 128 }) } as unknown as Endpoint,
         cluster: 'colorControl',
       } as any),
     ).toEqual({
@@ -278,7 +276,7 @@ describe('TestPlatform', () => {
     expect(
       await platform.parseUrl('light', 'Light1', 'on', baseUrl + '/api/${red}/${green}/${blue}', {
         attributes: { currentHue: 128, currentSaturation: 128 },
-        endpoint: { stateOf: () => ({ currentHue: 128, currentSaturation: 128 }) } as unknown as Endpoint,
+        endpoint: { getCluster: () => ({ currentHue: 128, currentSaturation: 128 }) } as unknown as Endpoint,
         cluster: 'colorControl',
       } as any),
     ).toEqual({
@@ -288,7 +286,7 @@ describe('TestPlatform', () => {
     expect(
       await platform.parseUrl('light', 'Light1', 'on', baseUrl + '/api/${colorX}/${colorY}', {
         attributes: { currentX: 24939, currentY: 24701 },
-        endpoint: { stateOf: () => ({ currentX: 24939, currentY: 24701 }) } as unknown as Endpoint,
+        endpoint: { getCluster: () => ({ currentX: 24939, currentY: 24701 }) } as unknown as Endpoint,
         cluster: 'colorControl',
       } as any),
     ).toEqual({
@@ -302,7 +300,7 @@ describe('TestPlatform', () => {
   it('should call onStart with reason', async () => {
     await platform.onStart('Test reason');
     expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, 'onStart called with reason:', 'Test reason');
-    expect(addBridgedEndpointSpy).toHaveBeenCalledTimes(Object.keys(config.webhooks).length + Object.keys(config.outlets).length + Object.keys(config.lights).length);
+    expect(addBridgedEndpointMatterbridgeSpy).toHaveBeenCalledTimes(Object.keys(config.webhooks).length + Object.keys(config.outlets).length + Object.keys(config.lights).length);
     expect(platform.getDevices()).toHaveLength(7);
     expect(platform.getDevices()[0].serialNumber).toBe('webhook1');
     expect(platform.getDevices()[0].deviceType).toBe(onOffSwitch.code);

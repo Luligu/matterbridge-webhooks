@@ -361,8 +361,8 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
     // Attributes based replacements
     if ((parsedUrl.includes('${level}') || parsedUrl.includes('${level100}')) && data.cluster === 'levelControl' && isValidNumber(data.attributes.currentLevel, 1, 254)) {
       await wait(100); // Wait a bit to ensure the latest values are written by the command handlers. After the wait the attributes should be updated and the context be closed.
-      const attributes = endpoint.stateOf(MatterbridgeLevelControlServer);
-      if (isValidNumber(attributes.currentLevel, 1, 254)) {
+      const attributes = endpoint.getCluster(MatterbridgeLevelControlServer);
+      if (isValidNumber(attributes?.currentLevel, 1, 254)) {
         if (url.includes('${level}')) parsedUrl = parsedUrl.replace('${level}', attributes.currentLevel.toString());
         if (url.includes('${level100}')) parsedUrl = parsedUrl.replace('${level100}', Math.round((attributes.currentLevel / 254) * 100).toString());
       }
@@ -375,8 +375,8 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
       isValidNumber(data.attributes.colorTemperatureMireds, data.attributes.colorTempPhysicalMinMireds, data.attributes.colorTempPhysicalMaxMireds)
     ) {
       await wait(100); // Wait a bit to ensure the latest values are written by the command handlers. After the wait the attributes should be updated and the context be closed.
-      const attributes = endpoint.stateOf(MatterbridgeColorControlServer);
-      if (isValidNumber(attributes.colorTemperatureMireds)) {
+      const attributes = endpoint.getCluster(MatterbridgeColorControlServer);
+      if (isValidNumber(attributes?.colorTemperatureMireds)) {
         const kelvin = miredToKelvin(attributes.colorTemperatureMireds);
         this.log.debug(`Attribute colorTemperatureMireds is ${attributes.colorTemperatureMireds}, which is ${kelvin}K`);
         if (url.includes('${mired}')) parsedUrl = parsedUrl.replace('${mired}', attributes.colorTemperatureMireds.toString());
@@ -390,8 +390,8 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
       isValidNumber(data.attributes.currentSaturation, 0, 254)
     ) {
       await wait(100); // Wait a bit to ensure the latest values are written by the command handlers. After the wait the attributes should be updated and the context be closed.
-      const attributes = endpoint.stateOf(MatterbridgeColorControlServer);
-      if (isValidNumber(attributes.currentHue, 0, 254) && isValidNumber(attributes.currentSaturation, 0, 254)) {
+      const attributes = endpoint.getCluster(MatterbridgeColorControlServer);
+      if (isValidNumber(attributes?.currentHue, 0, 254) && isValidNumber(attributes?.currentSaturation, 0, 254)) {
         const rgb = hslColorToRgbColor((attributes.currentHue * 360) / 254, (attributes.currentSaturation * 100) / 254, 50);
         this.log.debug(`Converted hue ${attributes.currentHue} and saturation ${attributes.currentSaturation} to RGB r: ${rgb.r} g: ${rgb.g} b: ${rgb.b}`);
         if (url.includes('${hue}')) parsedUrl = parsedUrl.replace('${hue}', Math.round((attributes.currentHue * 360) / 254).toString());
@@ -408,8 +408,8 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
       isValidNumber(data.attributes.currentY, 0, 65279)
     ) {
       await wait(100); // Wait a bit to ensure the latest values are written by the command handlers. After the wait the attributes should be updated and the context be closed.
-      const attributes = endpoint.stateOf(MatterbridgeColorControlServer);
-      if (isValidNumber(attributes.currentX, 0, 65279) && isValidNumber(attributes.currentY, 0, 65279)) {
+      const attributes = endpoint.getCluster(MatterbridgeColorControlServer);
+      if (isValidNumber(attributes?.currentX, 0, 65279) && isValidNumber(attributes?.currentY, 0, 65279)) {
         if (url.includes('${colorX}')) parsedUrl = parsedUrl.replace('${colorX}', this.roundTo(attributes.currentX / 65536, 4).toString());
         if (url.includes('${colorY}')) parsedUrl = parsedUrl.replace('${colorY}', this.roundTo(attributes.currentY / 65536, 4).toString());
       }

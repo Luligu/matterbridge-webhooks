@@ -3,7 +3,7 @@ import { AddressInfo } from 'node:net';
 
 import { jest } from '@jest/globals';
 
-import { fetch } from './fetch.ts';
+import { fetch } from './fetch.js';
 
 describe('fetch test', () => {
   let server: Server;
