@@ -36,9 +36,9 @@ Usage:
   node scripts/remove-workflows.mjs [--dry-run]
 
 Options:
-  --dry-run  Show which workflow runs would be deleted without deleting them
-  --version  Show the script version
-  --help     Show this help message
+  --dry-run      Show which workflow runs would be deleted without deleting them
+  --version, -v  Show the script version
+  --help, -h     Show this help message
 
 Requirements:
   - gh CLI installed and authenticated
