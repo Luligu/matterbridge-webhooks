@@ -1,6 +1,6 @@
 /**
  * remove-workflows.mjs
- * Version: 1.0.0
+ * Version: 1.0.1
  *
  * Removes GitHub Actions workflow runs that are older than one week, plus all
  * cancelled workflow runs regardless of age.

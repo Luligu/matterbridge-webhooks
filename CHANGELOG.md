@@ -30,6 +30,14 @@ If you like this project and find it useful, please consider giving it a star on
 
 ## [1.1.4] - Dev branch
 
+### Changed
+
+- [package]: Update dependencies.
+- [package]: Bump package to `automator` v.3.1.9.
+- [package]: Bump `typescript-eslint` to v.8.59.3.
+- [package]: Update `scripts`.
+- [eslint]: Add `eslint` v.2.0.3 config.
+
 <a href="https://www.buymeacoffee.com/luligugithub"><img src="https://matterbridge.io/assets/bmc-button.svg" alt="Buy me a coffee" width="80"></a>
 
 ## [1.1.3] - 2026-05-11
