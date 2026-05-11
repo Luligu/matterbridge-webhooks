@@ -1,6 +1,8 @@
 const NAME = 'Platform';
 const MATTER_PORT = 6000;
 
+// Warning: the tests in this file are supposed to run sequentially.
+
 // Mock the fetch module
 import http, { Server } from 'node:http';
 import { AddressInfo } from 'node:net';
