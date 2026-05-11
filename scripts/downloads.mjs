@@ -4,7 +4,7 @@
  * Prints daily npm downloads for the last month for the package in ../package.json.
  *
  * Usage:
- *   node scripts/download.mjs
+ *   node scripts/downloads.mjs
  *
  * Requirements:
  *   Node.js 18+ (for global fetch)

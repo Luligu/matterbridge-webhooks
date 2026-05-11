@@ -1,3 +1,5 @@
+<!-- eslint-disable markdown/no-missing-label-refs -->
+
 # <img src="https://matterbridge.io/assets/matterbridge.svg" alt="Matterbridge Logo" width="64px" height="64px">&nbsp;&nbsp;&nbsp;Matterbridge webhooks plugin changelog
 
 [![npm version](https://img.shields.io/npm/v/matterbridge-webhooks.svg)](https://www.npmjs.com/package/matterbridge-webhooks)
@@ -26,7 +28,7 @@ If you like this project and find it useful, please consider giving it a star on
 
 <a href="https://www.buymeacoffee.com/luligugithub"><img src="https://matterbridge.io/assets/bmc-button.svg" alt="Buy me a coffee" width="120"></a>
 
-## [1.1.3] - Dev branch
+## [1.1.3] - 2026-05-11
 
 ### Added
 
@@ -37,16 +39,24 @@ If you like this project and find it useful, please consider giving it a star on
 
 - [package]: Preliminary compatibility update to `matterbridge 3.8.0`, matter 1.5.1 and matter.js 0.17.0.
 - [package]: Update dependencies.
-- [package]: Bump package to `automator` v.3.1.6.
+- [package]: Bump package to `automator` v.3.1.8.
 - [package]: Bump `node-ansi-logger` to v.3.2.1.
 - [package]: Bump `node-persist-manager` to v.2.0.2.
+- [package]: Bump `jest` to v.30.4.2.
+- [package]: Bump `prettier` to v.3.8.3.
 - [package]: Bump `typescript` to v.6.0.3.
-- [package]: Bump `eslint` to v.10.2.1.
-- [package]: Bump `typescript-eslint` to v.8.59.0.
-- [package]: Bump `prettier` to v.3.8.2.
+- [package]: Bump `eslint` to v.10.3.0.
+- [package]: Bump `typescript-eslint` to v.8.59.2.
+- [package]: Add Node.js 26 to package `engines` field.
 - [package]: Add `.vscode\tasks.json`.
 - [package]: Add `.vscode\settings.json`.
+- [package]: Add package script `typecheck`.
+- [eslint]: Remove `eslint-plugin-promise` (not actively maintained) and add optional @typescript-eslint promise rules.
+- [workflows]: Add Node.js 26 to `build.yml` Node matrix and remove Node.js 20.
 - [devcontainer]: Add `Claude Code for VS Code extension` to Dev Container.
+- [jest]: Add `jest` v.2.0.1 config.
+- [eslint]: Add `eslint` v.2.0.2 config.
+- [prettier]: Add `prettier` v.2.0.0 config.
 - [agent]: Add `.github\copilot-instructions.md` for copilot.
 - [agent]: Add `.claude\CLAUDE.md` for claude.
 - [agent]: Add agent custom instructions (`testing`) for copilot and claude.
@@ -57,6 +67,12 @@ If you like this project and find it useful, please consider giving it a star on
 - [scripts]: Update mb-run script.
 - [scripts]: Update package watch script.
 - [scripts]: Add prune-releases script.
+- [devcontainer]: Update `Dev Container` configuration.
+- [devcontainer]: Add `postStartCommand` to the Dev Container configuration.
+- [package]: Refactor `build.yml` to use matterbridge dev branch for push and main for pull requests.
+- [package]: Add `type checking` script for Jest tests.
+- [package]: Update actions versions in workflows.
+- [package]: Add `CODE_OF_CONDUCT.md`.
 
 <a href="https://www.buymeacoffee.com/luligugithub"><img src="https://matterbridge.io/assets/bmc-button.svg" alt="Buy me a coffee" width="80"></a>
 

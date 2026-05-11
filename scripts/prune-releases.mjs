@@ -16,11 +16,11 @@ class ExitError extends Error {
 
 function usage() {
   return [
-    'Usage: node scripts/remove-releases.mjs [--dry-run|-n] <tag-prefix-to-keep>',
+    'Usage: node scripts/prune-releases.mjs [--dry-run|-n] <tag-prefix-to-keep>',
     '',
     'Examples:',
-    '  node scripts/remove-releases.mjs 2.',
-    '  node scripts/remove-releases.mjs --dry-run 2.',
+    '  node scripts/prune-releases.mjs 2.',
+    '  node scripts/prune-releases.mjs --dry-run 2.',
   ].join('\n');
 }
 

@@ -96,7 +96,7 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
     super(matterbridge, log, config);
 
     // Verify that Matterbridge is the correct version
-    if (this.verifyMatterbridgeVersion === undefined || typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('3.7.0')) {
+    if (typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('3.7.0')) {
       throw new Error(`This plugin requires Matterbridge version >= "3.7.0". Please update Matterbridge to the latest version in the frontend.`);
     }
 
@@ -172,10 +172,10 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
         .createOnOffClusterServer(false)
         .addRequiredClusterServers()
         .addCommandHandler('on', async (data) => {
-          this.parseUrl('outlet', outletName, 'on', webhook.onUrl, data);
+          await this.parseUrl('outlet', outletName, 'on', webhook.onUrl, data);
         })
         .addCommandHandler('off', async (data) => {
-          this.parseUrl('outlet', outletName, 'off', webhook.offUrl, data);
+          await this.parseUrl('outlet', outletName, 'off', webhook.offUrl, data);
         });
       await this.registerDevice(device);
     }
@@ -208,31 +208,31 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
         .createDefaultLevelControlClusterServer()
         .addRequiredClusterServers()
         .addCommandHandler('on', async (data) => {
-          this.parseUrl('light', lightName, 'on', webhook.onUrl, data);
+          await this.parseUrl('light', lightName, 'on', webhook.onUrl, data);
         })
         .addCommandHandler('off', async (data) => {
-          this.parseUrl('light', lightName, 'off', webhook.offUrl, data);
+          await this.parseUrl('light', lightName, 'off', webhook.offUrl, data);
         })
         .addCommandHandler('moveToLevel', async (data) => {
-          this.parseUrl('light', lightName, 'moveToLevel', webhook.brightnessUrl, data);
+          await this.parseUrl('light', lightName, 'moveToLevel', webhook.brightnessUrl, data);
         })
         .addCommandHandler('moveToLevelWithOnOff', async (data) => {
-          this.parseUrl('light', lightName, 'moveToLevelWithOnOff', webhook.brightnessUrl, data);
+          await this.parseUrl('light', lightName, 'moveToLevelWithOnOff', webhook.brightnessUrl, data);
         })
         .addCommandHandler('moveToColorTemperature', async (data) => {
-          this.parseUrl('light', lightName, 'moveToColorTemperature', webhook.colorTempUrl, data);
+          await this.parseUrl('light', lightName, 'moveToColorTemperature', webhook.colorTempUrl, data);
         })
         .addCommandHandler('moveToHueAndSaturation', async (data) => {
-          this.parseUrl('light', lightName, 'moveToHueAndSaturation', webhook.rgbUrl, data);
+          await this.parseUrl('light', lightName, 'moveToHueAndSaturation', webhook.rgbUrl, data);
         })
         .addCommandHandler('moveToHue', async (data) => {
-          this.parseUrl('light', lightName, 'moveToHue', webhook.rgbUrl, data);
+          await this.parseUrl('light', lightName, 'moveToHue', webhook.rgbUrl, data);
         })
         .addCommandHandler('moveToSaturation', async (data) => {
-          this.parseUrl('light', lightName, 'moveToSaturation', webhook.rgbUrl, data);
+          await this.parseUrl('light', lightName, 'moveToSaturation', webhook.rgbUrl, data);
         })
         .addCommandHandler('moveToColor', async (data) => {
-          this.parseUrl('light', lightName, 'moveToColor', webhook.rgbUrl, data);
+          await this.parseUrl('light', lightName, 'moveToColor', webhook.rgbUrl, data);
         });
       await this.registerDevice(device);
     }
@@ -250,6 +250,7 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   override async onAction(action: string, value?: string, id?: string, formData?: PlatformConfig): Promise<void> {
     this.log.info('onAction called with action:', action, 'and value:', value ?? 'none', 'and id:', id ?? 'none');
     this.log.debug('onAction called with formData:', formData ?? 'none');
