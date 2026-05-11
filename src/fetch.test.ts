@@ -3,7 +3,7 @@ import { AddressInfo } from 'node:net';
 
 import { jest } from '@jest/globals';
 
-import { fetch } from './fetch.ts';
+import { fetch } from './fetch.js';
 
 describe('fetch test', () => {
   let server: Server;
@@ -98,6 +98,27 @@ describe('fetch test', () => {
     const postData = { key: 'value', num: 42 };
     const result = await fetch<typeof postData>(baseUrl, 'POST', postData);
     expect(result).toEqual(postData);
+  });
+
+  test('Successful PUT request', async () => {
+    // Server echoes back the PUT JSON.
+    server = http.createServer((req, res) => {
+      let body = '';
+      req.on('data', (chunk) => {
+        body += chunk;
+      });
+      req.on('end', () => {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(body);
+      });
+    });
+    await new Promise<void>((resolve) => server.listen(0, () => resolve()));
+    const port = (server.address() as AddressInfo).port;
+    baseUrl = `http://127.0.0.1:${port}`;
+
+    const putData = { key: 'value', num: 99 };
+    const result = await fetch<typeof putData>(baseUrl, 'PUT', putData);
+    expect(result).toEqual(putData);
   });
 
   test('Non-success status code should reject', async () => {

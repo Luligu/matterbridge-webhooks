@@ -37,14 +37,14 @@ import {
   PlatformConfig,
   PlatformMatterbridge,
 } from 'matterbridge';
-import { hslColorToRgbColor, isValidNumber, isValidObject, isValidString, miredToKelvin, wait } from 'matterbridge/utils';
 import { AnsiLogger, rs } from 'matterbridge/logger';
 import { ColorControl, LevelControl } from 'matterbridge/matter/clusters';
+import { hslColorToRgbColor, isValidNumber, isValidObject, isValidString, miredToKelvin, wait } from 'matterbridge/utils';
 
 import { fetch } from './fetch.js';
 
 export interface WebhookConfig {
-  method: 'POST' | 'GET';
+  method: 'POST' | 'GET' | 'PUT';
   httpUrl: string;
   test: boolean;
 }
@@ -96,8 +96,8 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
     super(matterbridge, log, config);
 
     // Verify that Matterbridge is the correct version
-    if (this.verifyMatterbridgeVersion === undefined || typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('3.5.0')) {
-      throw new Error(`This plugin requires Matterbridge version >= "3.5.0". Please update Matterbridge to the latest version in the frontend.`);
+    if (typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('3.7.0')) {
+      throw new Error(`This plugin requires Matterbridge version >= "3.7.0". Please update Matterbridge to the latest version in the frontend.`);
     }
 
     this.log.info('Initializing platform:', this.config.name);
@@ -172,10 +172,10 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
         .createOnOffClusterServer(false)
         .addRequiredClusterServers()
         .addCommandHandler('on', async (data) => {
-          this.parseUrl('outlet', outletName, 'on', webhook.onUrl, data);
+          await this.parseUrl('outlet', outletName, 'on', webhook.onUrl, data);
         })
         .addCommandHandler('off', async (data) => {
-          this.parseUrl('outlet', outletName, 'off', webhook.offUrl, data);
+          await this.parseUrl('outlet', outletName, 'off', webhook.offUrl, data);
         });
       await this.registerDevice(device);
     }
@@ -208,31 +208,31 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
         .createDefaultLevelControlClusterServer()
         .addRequiredClusterServers()
         .addCommandHandler('on', async (data) => {
-          this.parseUrl('light', lightName, 'on', webhook.onUrl, data);
+          await this.parseUrl('light', lightName, 'on', webhook.onUrl, data);
         })
         .addCommandHandler('off', async (data) => {
-          this.parseUrl('light', lightName, 'off', webhook.offUrl, data);
+          await this.parseUrl('light', lightName, 'off', webhook.offUrl, data);
         })
         .addCommandHandler('moveToLevel', async (data) => {
-          this.parseUrl('light', lightName, 'moveToLevel', webhook.brightnessUrl, data);
+          await this.parseUrl('light', lightName, 'moveToLevel', webhook.brightnessUrl, data);
         })
         .addCommandHandler('moveToLevelWithOnOff', async (data) => {
-          this.parseUrl('light', lightName, 'moveToLevelWithOnOff', webhook.brightnessUrl, data);
+          await this.parseUrl('light', lightName, 'moveToLevelWithOnOff', webhook.brightnessUrl, data);
         })
         .addCommandHandler('moveToColorTemperature', async (data) => {
-          this.parseUrl('light', lightName, 'moveToColorTemperature', webhook.colorTempUrl, data);
+          await this.parseUrl('light', lightName, 'moveToColorTemperature', webhook.colorTempUrl, data);
         })
         .addCommandHandler('moveToHueAndSaturation', async (data) => {
-          this.parseUrl('light', lightName, 'moveToHueAndSaturation', webhook.rgbUrl, data);
+          await this.parseUrl('light', lightName, 'moveToHueAndSaturation', webhook.rgbUrl, data);
         })
         .addCommandHandler('moveToHue', async (data) => {
-          this.parseUrl('light', lightName, 'moveToHue', webhook.rgbUrl, data);
+          await this.parseUrl('light', lightName, 'moveToHue', webhook.rgbUrl, data);
         })
         .addCommandHandler('moveToSaturation', async (data) => {
-          this.parseUrl('light', lightName, 'moveToSaturation', webhook.rgbUrl, data);
+          await this.parseUrl('light', lightName, 'moveToSaturation', webhook.rgbUrl, data);
         })
         .addCommandHandler('moveToColor', async (data) => {
-          this.parseUrl('light', lightName, 'moveToColor', webhook.rgbUrl, data);
+          await this.parseUrl('light', lightName, 'moveToColor', webhook.rgbUrl, data);
         });
       await this.registerDevice(device);
     }
@@ -250,6 +250,7 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   override async onAction(action: string, value?: string, id?: string, formData?: PlatformConfig): Promise<void> {
     this.log.info('onAction called with action:', action, 'and value:', value ?? 'none', 'and id:', id ?? 'none');
     this.log.debug('onAction called with formData:', formData ?? 'none');
@@ -311,15 +312,15 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
    * @param {string} command - The command to parse.
    * @param {string} url - The URL to parse.
    * @param {CommandHandlerData} [data] - The command handler data.
-   * @returns {Promise<{ method: 'POST' | 'GET'; url: string }>} - The parsed method and URL.
+   * @returns {Promise<{ method: 'POST' | 'GET' | 'PUT'; url: string }>} - The parsed method and URL.
    */
-  async parseUrl(deviceType: string, deviceName: string, command: string, url: string, data: CommandHandlerData): Promise<{ method: 'POST' | 'GET'; url: string }> {
+  async parseUrl(deviceType: string, deviceName: string, command: string, url: string, data: CommandHandlerData): Promise<{ method: 'POST' | 'GET' | 'PUT'; url: string }> {
     this.log.info(`Webhook ${deviceType} ${deviceName} ${command} triggered`);
     const endpoint = data.endpoint;
     this.log.debug(`Webhook ${deviceType} ${deviceName} ${command} triggered on endpoint ${endpoint?.deviceName}`);
 
     // Determine method
-    let method: 'POST' | 'GET' = 'GET';
+    let method: 'POST' | 'GET' | 'PUT' = 'GET';
     let parsedUrl = url;
     if (url.startsWith('GET#')) {
       method = 'GET';
@@ -327,68 +328,75 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
     } else if (url.startsWith('POST#')) {
       method = 'POST';
       parsedUrl = url.replace('POST#', '');
+    } else if (url.startsWith('PUT#')) {
+      method = 'PUT';
+      parsedUrl = url.replace('PUT#', '');
     }
 
     // Request based replacements
-    if (parsedUrl.includes('${LEVEL}') && isValidNumber(data.request.level)) {
+    if (parsedUrl.includes('${LEVEL}') && data.cluster === 'levelControl' && isValidNumber(data.request.level)) {
       parsedUrl = parsedUrl.replace('${LEVEL}', (data.request as LevelControl.MoveToLevelRequest).level.toString());
     }
-    if (url.includes('${LEVEL100}') && isValidNumber(data.request.level)) {
+    if (url.includes('${LEVEL100}') && data.cluster === 'levelControl' && isValidNumber(data.request.level)) {
       parsedUrl = parsedUrl.replace('${LEVEL100}', Math.round(((data.request as LevelControl.MoveToLevelRequest).level / 254) * 100).toString());
     }
-    if (parsedUrl.includes('${KELVIN}') && isValidNumber(data.request.colorTemperatureMireds)) {
+    if (parsedUrl.includes('${KELVIN}') && data.cluster === 'colorControl' && data.command === 'moveToColorTemperature' && isValidNumber(data.request.colorTemperatureMireds)) {
       parsedUrl = parsedUrl.replace('${KELVIN}', Math.round(miredToKelvin((data.request as ColorControl.MoveToColorTemperatureRequest).colorTemperatureMireds)).toString());
     }
-    if (parsedUrl.includes('${MIRED}') && isValidNumber(data.request.colorTemperatureMireds)) {
+    if (parsedUrl.includes('${MIRED}') && data.cluster === 'colorControl' && data.command === 'moveToColorTemperature' && isValidNumber(data.request.colorTemperatureMireds)) {
       parsedUrl = parsedUrl.replace('${MIRED}', Math.round((data.request as ColorControl.MoveToColorTemperatureRequest).colorTemperatureMireds).toString());
     }
-    if (parsedUrl.includes('${COLORX}') && isValidNumber(data.request.colorX, 0, 65279)) {
+    if (parsedUrl.includes('${COLORX}') && data.cluster === 'colorControl' && data.command === 'moveToColor' && isValidNumber(data.request.colorX, 0, 65279)) {
       parsedUrl = parsedUrl.replace('${COLORX}', this.roundTo((data.request as ColorControl.MoveToColorRequest).colorX / 65536, 4).toString());
     }
-    if (parsedUrl.includes('${COLORY}') && isValidNumber(data.request.colorY, 0, 65279)) {
+    if (parsedUrl.includes('${COLORY}') && data.cluster === 'colorControl' && data.command === 'moveToColor' && isValidNumber(data.request.colorY, 0, 65279)) {
       parsedUrl = parsedUrl.replace('${COLORY}', this.roundTo((data.request as ColorControl.MoveToColorRequest).colorY / 65536, 4).toString());
     }
-    if (parsedUrl.includes('${HUE}') && isValidNumber(data.request.hue, 0, 254)) {
+    if (parsedUrl.includes('${HUE}') && data.cluster === 'colorControl' && data.command === 'moveToHueAndSaturation' && isValidNumber(data.request.hue, 0, 254)) {
       parsedUrl = parsedUrl.replace('${HUE}', Math.round(((data.request as ColorControl.MoveToHueAndSaturationRequest).hue * 360) / 254).toString());
     }
-    if (parsedUrl.includes('${SATURATION}') && isValidNumber(data.request.saturation, 0, 254)) {
+    if (parsedUrl.includes('${SATURATION}') && data.cluster === 'colorControl' && data.command === 'moveToHueAndSaturation' && isValidNumber(data.request.saturation, 0, 254)) {
       parsedUrl = parsedUrl.replace('${SATURATION}', Math.round(((data.request as ColorControl.MoveToHueAndSaturationRequest).saturation * 100) / 254).toString());
     }
 
     // Attributes based replacements
-    if ((parsedUrl.includes('${level}') || parsedUrl.includes('${level100}')) && isValidNumber(data.attributes.currentLevel, 1, 254)) {
+    if ((parsedUrl.includes('${level}') || parsedUrl.includes('${level100}')) && data.cluster === 'levelControl' && isValidNumber(data.attributes.currentLevel, 1, 254)) {
       await wait(100); // Wait a bit to ensure the latest values are written by the command handlers. After the wait the attributes should be updated and the context be closed.
-      data.attributes = endpoint.stateOf(MatterbridgeLevelControlServer);
-      if (isValidNumber(data.attributes.currentLevel, 1, 254)) {
-        if (url.includes('${level}')) parsedUrl = parsedUrl.replace('${level}', data.attributes.currentLevel.toString());
-        if (url.includes('${level100}')) parsedUrl = parsedUrl.replace('${level100}', Math.round((data.attributes.currentLevel / 254) * 100).toString());
+      const attributes = endpoint.getCluster(MatterbridgeLevelControlServer);
+      if (isValidNumber(attributes?.currentLevel, 1, 254)) {
+        if (url.includes('${level}')) parsedUrl = parsedUrl.replace('${level}', attributes.currentLevel.toString());
+        if (url.includes('${level100}')) parsedUrl = parsedUrl.replace('${level100}', Math.round((attributes.currentLevel / 254) * 100).toString());
       }
     }
     if (
       (parsedUrl.includes('${mired}') || parsedUrl.includes('${kelvin}')) &&
-      isValidNumber(data.attributes.colorTemperatureMireds, data.attributes.colorTempPhysicalMinMireds as number, data.attributes.colorTempPhysicalMaxMireds as number)
+      data.cluster === 'colorControl' &&
+      isValidNumber(data.attributes.colorTempPhysicalMinMireds) &&
+      isValidNumber(data.attributes.colorTempPhysicalMaxMireds) &&
+      isValidNumber(data.attributes.colorTemperatureMireds, data.attributes.colorTempPhysicalMinMireds, data.attributes.colorTempPhysicalMaxMireds)
     ) {
       await wait(100); // Wait a bit to ensure the latest values are written by the command handlers. After the wait the attributes should be updated and the context be closed.
-      data.attributes = endpoint.stateOf(MatterbridgeColorControlServer);
-      if (isValidNumber(data.attributes.colorTemperatureMireds)) {
-        const kelvin = miredToKelvin(data.attributes.colorTemperatureMireds);
-        this.log.debug(`Attribute colorTemperatureMireds is ${data.attributes.colorTemperatureMireds}, which is ${kelvin}K`);
-        if (url.includes('${mired}')) parsedUrl = parsedUrl.replace('${mired}', data.attributes.colorTemperatureMireds.toString());
+      const attributes = endpoint.getCluster(MatterbridgeColorControlServer);
+      if (isValidNumber(attributes?.colorTemperatureMireds)) {
+        const kelvin = miredToKelvin(attributes.colorTemperatureMireds);
+        this.log.debug(`Attribute colorTemperatureMireds is ${attributes.colorTemperatureMireds}, which is ${kelvin}K`);
+        if (url.includes('${mired}')) parsedUrl = parsedUrl.replace('${mired}', attributes.colorTemperatureMireds.toString());
         if (url.includes('${kelvin}')) parsedUrl = parsedUrl.replace('${kelvin}', kelvin.toString());
       }
     }
     if (
       (parsedUrl.includes('${hue}') || parsedUrl.includes('${saturation}') || parsedUrl.includes('${red}') || parsedUrl.includes('${green}') || parsedUrl.includes('${blue}')) &&
+      data.cluster === 'colorControl' &&
       isValidNumber(data.attributes.currentHue, 0, 254) &&
       isValidNumber(data.attributes.currentSaturation, 0, 254)
     ) {
       await wait(100); // Wait a bit to ensure the latest values are written by the command handlers. After the wait the attributes should be updated and the context be closed.
-      data.attributes = endpoint.stateOf(MatterbridgeColorControlServer);
-      if (isValidNumber(data.attributes.currentHue, 0, 254) && isValidNumber(data.attributes.currentSaturation, 0, 254)) {
-        const rgb = hslColorToRgbColor((data.attributes.currentHue * 360) / 254, (data.attributes.currentSaturation * 100) / 254, 50);
-        this.log.debug(`Converted hue ${data.attributes.currentHue} and saturation ${data.attributes.currentSaturation} to RGB r: ${rgb.r} g: ${rgb.g} b: ${rgb.b}`);
-        if (url.includes('${hue}')) parsedUrl = parsedUrl.replace('${hue}', Math.round((data.attributes.currentHue * 360) / 254).toString());
-        if (url.includes('${saturation}')) parsedUrl = parsedUrl.replace('${saturation}', Math.round((data.attributes.currentSaturation * 100) / 254).toString());
+      const attributes = endpoint.getCluster(MatterbridgeColorControlServer);
+      if (isValidNumber(attributes?.currentHue, 0, 254) && isValidNumber(attributes?.currentSaturation, 0, 254)) {
+        const rgb = hslColorToRgbColor((attributes.currentHue * 360) / 254, (attributes.currentSaturation * 100) / 254, 50);
+        this.log.debug(`Converted hue ${attributes.currentHue} and saturation ${attributes.currentSaturation} to RGB r: ${rgb.r} g: ${rgb.g} b: ${rgb.b}`);
+        if (url.includes('${hue}')) parsedUrl = parsedUrl.replace('${hue}', Math.round((attributes.currentHue * 360) / 254).toString());
+        if (url.includes('${saturation}')) parsedUrl = parsedUrl.replace('${saturation}', Math.round((attributes.currentSaturation * 100) / 254).toString());
         if (url.includes('${red}') && rgb) parsedUrl = parsedUrl.replace('${red}', rgb.r.toString());
         if (url.includes('${green}') && rgb) parsedUrl = parsedUrl.replace('${green}', rgb.g.toString());
         if (url.includes('${blue}') && rgb) parsedUrl = parsedUrl.replace('${blue}', rgb.b.toString());
@@ -396,14 +404,15 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
     }
     if (
       (parsedUrl.includes('${colorX}') || parsedUrl.includes('${colorY}')) &&
+      data.cluster === 'colorControl' &&
       isValidNumber(data.attributes.currentX, 0, 65279) &&
       isValidNumber(data.attributes.currentY, 0, 65279)
     ) {
       await wait(100); // Wait a bit to ensure the latest values are written by the command handlers. After the wait the attributes should be updated and the context be closed.
-      data.attributes = endpoint.stateOf(MatterbridgeColorControlServer);
-      if (isValidNumber(data.attributes.currentX, 0, 65279) && isValidNumber(data.attributes.currentY, 0, 65279)) {
-        if (url.includes('${colorX}')) parsedUrl = parsedUrl.replace('${colorX}', this.roundTo(data.attributes.currentX / 65536, 4).toString());
-        if (url.includes('${colorY}')) parsedUrl = parsedUrl.replace('${colorY}', this.roundTo(data.attributes.currentY / 65536, 4).toString());
+      const attributes = endpoint.getCluster(MatterbridgeColorControlServer);
+      if (isValidNumber(attributes?.currentX, 0, 65279) && isValidNumber(attributes?.currentY, 0, 65279)) {
+        if (url.includes('${colorX}')) parsedUrl = parsedUrl.replace('${colorX}', this.roundTo(attributes.currentX / 65536, 4).toString());
+        if (url.includes('${colorY}')) parsedUrl = parsedUrl.replace('${colorY}', this.roundTo(attributes.currentY / 65536, 4).toString());
       }
     }
 

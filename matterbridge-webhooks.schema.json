@@ -4,18 +4,21 @@
   "type": "object",
   "properties": {
     "name": {
+      "title": "Plugin Name",
       "description": "Plugin name",
       "type": "string",
       "readOnly": true,
       "ui:widget": "hidden"
     },
     "type": {
+      "title": "Plugin Type",
       "description": "Plugin type",
       "type": "string",
       "readOnly": true,
       "ui:widget": "hidden"
     },
     "version": {
+      "title": "Plugin Version",
       "description": "Plugin version",
       "type": "string",
       "readOnly": true,
@@ -23,6 +26,7 @@
       "ui:widget": "hidden"
     },
     "whiteList": {
+      "title": "White List",
       "description": "Only the webhooks in the list will be exposed. If the list is empty, all the webhooks will be exposed.",
       "type": "array",
       "items": {
@@ -32,6 +36,7 @@
       "selectFrom": "name"
     },
     "blackList": {
+      "title": "Black List",
       "description": "The webhooks in the list will not be exposed. If the list is empty, no webhooks will be excluded.",
       "type": "array",
       "items": {
@@ -41,12 +46,14 @@
       "selectFrom": "name"
     },
     "deviceType": {
+      "title": "Device Type",
       "type": "string",
       "default": "Outlet",
       "enum": ["Outlet", "Switch", "Light"],
       "description": "Select how to rappresent the webhooks on the controller. Don't use Switch for Alexa."
     },
     "webhooks": {
+      "title": "Webhooks",
       "description": "Define each webhooks. Enter in the first field the name of the webhook (replace newKey with the name of the webhook) and in the right panel the parameters.",
       "type": "object",
       "uniqueItems": true,
@@ -58,7 +65,7 @@
           "method": {
             "type": "string",
             "default": "GET",
-            "enum": ["GET", "POST"],
+            "enum": ["GET", "POST", "PUT"],
             "description": "HTTP method to use for the webhook."
           },
           "httpUrl": {
@@ -76,7 +83,8 @@
       }
     },
     "outlets": {
-      "description": "Define each outlet. Enter in the first field the name of the outlet (replace newKey with the name of the outlet) and in the right panel the urls (i.e. \"[GET|POST]#http://mydomain.com/api/device/on\").",
+      "title": "Outlets",
+      "description": "Define each outlet. Enter in the first field the name of the outlet (replace newKey with the name of the outlet) and in the right panel the urls (i.e. \"[GET|POST|PUT]#http://mydomain.com/api/device/on\").",
       "type": "object",
       "uniqueItems": true,
       "additionalProperties": {
@@ -98,7 +106,8 @@
       }
     },
     "lights": {
-      "description": "Define each light. Enter in the first field the name of the light (replace newKey with the name of the light) and in the right panel the urls (i.e. [GET|POST]#http://mydomain.com/api/device/on).",
+      "title": "Lights",
+      "description": "Define each light. Enter in the first field the name of the light (replace newKey with the name of the light) and in the right panel the urls (i.e. [GET|POST|PUT]#http://mydomain.com/api/device/on).",
       "type": "object",
       "uniqueItems": true,
       "additionalProperties": {
@@ -147,11 +156,13 @@
       }
     },
     "debug": {
+      "title": "Enable Debug",
       "description": "Enable the debug for the plugin.",
       "type": "boolean",
       "default": false
     },
     "unregisterOnShutdown": {
+      "title": "Unregister On Shutdown",
       "description": "Unregister all devices on shutdown. This will remove all devices from the controller when the plugin is stopped.",
       "type": "boolean",
       "default": false
