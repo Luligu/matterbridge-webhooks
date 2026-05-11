@@ -50,7 +50,7 @@
       "type": "string",
       "default": "Outlet",
       "enum": ["Outlet", "Switch", "Light"],
-      "description": "Select how to rappresent the webhooks on the controller. Don't use Switch for Alexa."
+      "description": "Select how to represent the webhooks on the controller. Don't use Switch for Alexa."
     },
     "webhooks": {
       "title": "Webhooks",
