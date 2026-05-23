@@ -14,6 +14,12 @@ import {
   addMatterbridgePlatform,
   createMatterbridgeEnvironment,
   destroyMatterbridgeEnvironment,
+  getMoveToColorRequest,
+  getMoveToColorTemperatureRequest,
+  getMoveToHueAndSaturationRequest,
+  getMoveToHueRequest,
+  getMoveToLevelRequest,
+  getMoveToSaturationRequest,
   log,
   loggerDebugSpy,
   loggerErrorSpy,
@@ -413,74 +419,35 @@ describe('TestPlatform', () => {
 
       if (device.serialNumber === 'light1') continue;
 
-      const moveToLevelRequest: LevelControl.MoveToLevelRequest = {
-        level: 128,
-        transitionTime: 0,
-        optionsMask: { executeIfOff: true, coupleColorTempToLevel: true },
-        optionsOverride: { executeIfOff: true, coupleColorTempToLevel: true },
-      };
-      await device.invokeBehaviorCommand('levelControl', 'moveToLevel', moveToLevelRequest);
+      await device.invokeBehaviorCommand('levelControl', 'moveToLevel', getMoveToLevelRequest(128, 0, true) as any);
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToLevel triggered`);
       jest.clearAllMocks();
 
-      await device.invokeBehaviorCommand('levelControl', 'moveToLevelWithOnOff', moveToLevelRequest);
+      await device.invokeBehaviorCommand('levelControl', 'moveToLevelWithOnOff', getMoveToLevelRequest(128, 0, true) as any);
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToLevelWithOnOff triggered`);
       jest.clearAllMocks();
 
       if (device.serialNumber === 'light2') continue;
 
-      const moveToColorTempRequest: ColorControl.MoveToColorTemperatureRequest = {
-        colorTemperatureMireds: 4000,
-        transitionTime: 0,
-        optionsMask: { executeIfOff: true },
-        optionsOverride: { executeIfOff: true },
-      };
-      await device.invokeBehaviorCommand('colorControl', 'moveToColorTemperature', moveToColorTempRequest);
+      await device.invokeBehaviorCommand('colorControl', 'moveToColorTemperature', getMoveToColorTemperatureRequest(4000, 0, true) as any);
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToColorTemperature triggered`);
       jest.clearAllMocks();
 
       if (device.serialNumber === 'light3') continue;
 
-      const moveToColorRequest: ColorControl.MoveToColorRequest = {
-        colorX: 25000,
-        colorY: 25000,
-        transitionTime: 0,
-        optionsMask: { executeIfOff: true },
-        optionsOverride: { executeIfOff: true },
-      };
-      await device.invokeBehaviorCommand('colorControl', 'moveToColor', moveToColorRequest);
+      await device.invokeBehaviorCommand('colorControl', 'moveToColor', getMoveToColorRequest(25000, 25000, 0, true) as any);
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToColor triggered`);
       jest.clearAllMocks();
 
-      const moveToHueAndSaturationRequest: ColorControl.MoveToHueAndSaturationRequest = {
-        hue: 128,
-        saturation: 128,
-        transitionTime: 0,
-        optionsMask: { executeIfOff: true },
-        optionsOverride: { executeIfOff: true },
-      };
-      await device.invokeBehaviorCommand('colorControl', 'moveToHueAndSaturation', moveToHueAndSaturationRequest);
+      await device.invokeBehaviorCommand('colorControl', 'moveToHueAndSaturation', getMoveToHueAndSaturationRequest(128, 128, 0, true) as any);
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToHueAndSaturation triggered`);
       jest.clearAllMocks();
 
-      const moveToHueRequest: ColorControl.MoveToHueRequest = {
-        hue: 128,
-        direction: ColorControl.Direction.Shortest,
-        transitionTime: 0,
-        optionsMask: { executeIfOff: true },
-        optionsOverride: { executeIfOff: true },
-      };
-      await device.invokeBehaviorCommand('colorControl', 'moveToHue', moveToHueRequest);
+      await device.invokeBehaviorCommand('colorControl', 'moveToHue', getMoveToHueRequest(128, 0, true) as any);
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToHue triggered`);
       jest.clearAllMocks();
 
-      const moveToSaturationRequest: ColorControl.MoveToSaturationRequest = {
-        saturation: 128,
-        transitionTime: 0,
-        optionsMask: { executeIfOff: true },
-        optionsOverride: { executeIfOff: true },
-      };
-      await device.invokeBehaviorCommand('colorControl', 'moveToSaturation', moveToSaturationRequest);
+      await device.invokeBehaviorCommand('colorControl', 'moveToSaturation', getMoveToSaturationRequest(128, 0, true) as any);
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToSaturation triggered`);
       jest.clearAllMocks();
     }
