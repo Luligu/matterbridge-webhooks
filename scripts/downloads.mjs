@@ -1,5 +1,6 @@
 /**
  * downloads.mjs
+ * Version: 1.0.1
  *
  * Prints daily npm downloads for the last month for the package in ../package.json.
  *

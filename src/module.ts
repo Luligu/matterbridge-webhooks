@@ -22,6 +22,7 @@
  */
 
 import {
+  BasePlatformConfig,
   bridgedNode,
   colorTemperatureLight,
   CommandHandlerData,
@@ -63,7 +64,7 @@ export interface LightConfig {
   rgbUrl: string;
 }
 
-export type WebhooksPlatformConfig = PlatformConfig & {
+export type WebhooksPlatformConfig = BasePlatformConfig & {
   whiteList: string[];
   blackList: string[];
   // Normal webhooks device type
@@ -80,8 +81,8 @@ export type WebhooksPlatformConfig = PlatformConfig & {
  *
  * @param {PlatformMatterbridge} matterbridge - An instance of MatterBridge. This is the main interface for interacting with the MatterBridge system.
  * @param {AnsiLogger} log - An instance of AnsiLogger. This is used for logging messages in a format that can be displayed with ANSI color codes.
- * @param {PlatformConfig} config - The platform configuration.
- * @returns {Platform} - An instance of the SomfyTahomaPlatform. This is the main interface for interacting with the Somfy Tahoma system.
+ * @param {WebhooksPlatformConfig} config - The platform configuration.
+ * @returns {WebhooksPlatform} - An instance of the WebhooksPlatform. This is the main interface for interacting with the Webhooks system.
  */
 export default function initializePlugin(matterbridge: PlatformMatterbridge, log: AnsiLogger, config: WebhooksPlatformConfig): WebhooksPlatform {
   return new WebhooksPlatform(matterbridge, log, config);
@@ -96,8 +97,8 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
     super(matterbridge, log, config);
 
     // Verify that Matterbridge is the correct version
-    if (typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('3.7.0')) {
-      throw new Error(`This plugin requires Matterbridge version >= "3.7.0". Please update Matterbridge to the latest version in the frontend.`);
+    if (typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('3.8.0')) {
+      throw new Error(`This plugin requires Matterbridge version >= "3.8.0". Please update Matterbridge to the latest version in the frontend.`);
     }
 
     this.log.info('Initializing platform:', this.config.name);
@@ -135,8 +136,10 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
           0,
           this.config.version,
         )
-        .createOnOffClusterServer(false)
-        .addRequiredClusterServers()
+        // Extraneous server cluster for Apple Home app to recognize the device as a switch and not a plug.
+        // The on/off cluster server will be removed from required clusters of onOffSwitch in a future release.
+        .createDefaultOnOffClusterServer(false)
+        .addRequiredClusters()
         .addCommandHandler('on', async () => {
           this.log.info(`Webhook ${webhookName} triggered`);
           await device.setAttribute('onOff', 'onOff', false, device.log);
@@ -169,8 +172,8 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
           0,
           this.config.version,
         )
-        .createOnOffClusterServer(false)
-        .addRequiredClusterServers()
+        .createDefaultOnOffClusterServer(false)
+        .addRequiredClusters()
         .addCommandHandler('on', async (data) => {
           await this.parseUrl('outlet', outletName, 'on', webhook.onUrl, data);
         })
@@ -203,10 +206,10 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
           0,
           this.config.version,
         )
-        .createOnOffClusterServer(false)
+        .createDefaultOnOffClusterServer(false)
         .createDefaultColorControlClusterServer(undefined, undefined, undefined, undefined, 250, webhook.minMireds, webhook.maxMireds)
         .createDefaultLevelControlClusterServer()
-        .addRequiredClusterServers()
+        .addRequiredClusters()
         .addCommandHandler('on', async (data) => {
           await this.parseUrl('light', lightName, 'on', webhook.onUrl, data);
         })
