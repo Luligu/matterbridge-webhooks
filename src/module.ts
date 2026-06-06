@@ -139,7 +139,7 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
         // Extraneous server cluster for Apple Home app to recognize the device as a switch and not a plug.
         // The on/off cluster server will be removed from required clusters of onOffSwitch in a future release.
         .createDefaultOnOffClusterServer(false)
-        .addRequiredClusterServers()
+        .addRequiredClusters()
         .addCommandHandler('on', async () => {
           this.log.info(`Webhook ${webhookName} triggered`);
           await device.setAttribute('onOff', 'onOff', false, device.log);
@@ -173,7 +173,7 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
           this.config.version,
         )
         .createDefaultOnOffClusterServer(false)
-        .addRequiredClusterServers()
+        .addRequiredClusters()
         .addCommandHandler('on', async (data) => {
           await this.parseUrl('outlet', outletName, 'on', webhook.onUrl, data);
         })
@@ -209,7 +209,7 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
         .createDefaultOnOffClusterServer(false)
         .createDefaultColorControlClusterServer(undefined, undefined, undefined, undefined, 250, webhook.minMireds, webhook.maxMireds)
         .createDefaultLevelControlClusterServer()
-        .addRequiredClusterServers()
+        .addRequiredClusters()
         .addCommandHandler('on', async (data) => {
           await this.parseUrl('light', lightName, 'on', webhook.onUrl, data);
         })
