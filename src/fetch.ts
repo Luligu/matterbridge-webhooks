@@ -24,6 +24,8 @@
 import http, { RequestOptions } from 'node:http';
 import https from 'node:https';
 
+import { getErrorMessage } from 'matterbridge/utils';
+
 type JsonPrimitive = string | number | boolean | null;
 type JsonValue = JsonPrimitive | JsonObject | JsonArray;
 interface JsonObject {
@@ -106,14 +108,14 @@ export async function fetch<T>(url: string, method: 'POST' | 'GET' | 'PUT' = 'GE
           const jsonResponse = JSON.parse(responseData);
           resolve(jsonResponse as T);
         } catch (err) {
-          reject(new Error(`Failed to parse response JSON: ${err instanceof Error ? err.message : err}`));
+          reject(new Error(`Failed to parse response JSON: ${getErrorMessage(err)}`));
         }
       });
     });
 
     req.on('error', (error) => {
       clearTimeout(timeoutId);
-      reject(new Error(`Request failed: ${error instanceof Error ? error.message : error}`));
+      reject(new Error(`Request failed: ${getErrorMessage(error)}`));
     });
 
     // Send the JSON data only if the method supports a body

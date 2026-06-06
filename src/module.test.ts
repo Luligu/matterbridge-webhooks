@@ -172,11 +172,9 @@ describe('TestPlatform', () => {
   });
 
   it('should throw error in load when version is not valid', () => {
-    matterbridge.matterbridgeVersion = '1.5.0';
-    expect(() => new WebhooksPlatform(matterbridge, log, config)).toThrow(
-      'This plugin requires Matterbridge version >= "3.7.0". Please update Matterbridge to the latest version in the frontend.',
+    expect(() => new WebhooksPlatform({ ...matterbridge, matterbridgeVersion: '1.5.0' }, log, config)).toThrow(
+      'This plugin requires Matterbridge version >= "3.8.0". Please update Matterbridge to the latest version in the frontend.',
     );
-    matterbridge.matterbridgeVersion = '3.7.0';
   });
 
   it('should initialize platform with config name', async () => {
