@@ -81,8 +81,8 @@ export type WebhooksPlatformConfig = BasePlatformConfig & {
  *
  * @param {PlatformMatterbridge} matterbridge - An instance of MatterBridge. This is the main interface for interacting with the MatterBridge system.
  * @param {AnsiLogger} log - An instance of AnsiLogger. This is used for logging messages in a format that can be displayed with ANSI color codes.
- * @param {PlatformConfig} config - The platform configuration.
- * @returns {Platform} - An instance of the WebhooksPlatform. This is the main interface for interacting with the Webhooks system.
+ * @param {WebhooksPlatformConfig} config - The platform configuration.
+ * @returns {WebhooksPlatform} - An instance of the WebhooksPlatform. This is the main interface for interacting with the Webhooks system.
  */
 export default function initializePlugin(matterbridge: PlatformMatterbridge, log: AnsiLogger, config: WebhooksPlatformConfig): WebhooksPlatform {
   return new WebhooksPlatform(matterbridge, log, config);
