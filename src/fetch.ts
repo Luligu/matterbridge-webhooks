@@ -21,7 +21,7 @@
  * limitations under the License.
  */
 
-import http, { RequestOptions } from 'node:http';
+import http, { type RequestOptions } from 'node:http';
 import https from 'node:https';
 
 import { getErrorMessage } from 'matterbridge/utils';
@@ -31,7 +31,7 @@ type JsonValue = JsonPrimitive | JsonObject | JsonArray;
 interface JsonObject {
   [key: string]: JsonValue;
 }
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+// oxlint-disable-next-line typescript/no-empty-object-type
 interface JsonArray extends Array<JsonValue> {}
 
 /**
@@ -55,21 +55,17 @@ export async function fetch<T>(url: string, method: 'POST' | 'GET' | 'PUT' = 'GE
     const jsonData = JSON.stringify(data);
     // Add the JSON data to the url only if the method is GET
     if (method === 'GET') {
-      const queryParams = new URLSearchParams(
-        Object.entries(data).reduce(
-          (acc, [key, value]) => {
-            if (value === null) {
-              acc[key] = '';
-            } else if (typeof value === 'object') {
-              acc[key] = JSON.stringify(value);
-            } else {
-              acc[key] = String(value);
-            }
-            return acc;
-          },
-          {} as Record<string, string>,
-        ),
-      ).toString();
+      const params: Record<string, string> = {};
+      for (const [key, value] of Object.entries(data)) {
+        if (value === null) {
+          params[key] = '';
+        } else if (typeof value === 'object') {
+          params[key] = JSON.stringify(value);
+        } else {
+          params[key] = String(value);
+        }
+      }
+      const queryParams = new URLSearchParams(params).toString();
       if (queryParams) {
         const separator = url.includes('?') ? '&' : '?';
         requestUrl = `${url}${separator}${queryParams}`;
@@ -105,8 +101,8 @@ export async function fetch<T>(url: string, method: 'POST' | 'GET' | 'PUT' = 'GE
       res.on('end', () => {
         clearTimeout(timeoutId);
         try {
-          const jsonResponse = JSON.parse(responseData);
-          resolve(jsonResponse as T);
+          const jsonResponse: T = JSON.parse(responseData);
+          resolve(jsonResponse);
         } catch (err) {
           reject(new Error(`Failed to parse response JSON: ${getErrorMessage(err)}`));
         }

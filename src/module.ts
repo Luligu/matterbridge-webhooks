@@ -21,14 +21,11 @@
  * limitations under the License.
  */
 
-// TODO: Remove when require Matterbridge 3.8.1 or later
-/* eslint-disable @typescript-eslint/no-deprecated */
-
 import {
-  BasePlatformConfig,
+  type BasePlatformConfig,
   bridgedNode,
   colorTemperatureLight,
-  CommandHandlerData,
+  type CommandHandlerData,
   dimmableLight,
   extendedColorLight,
   MatterbridgeColorControlServer,
@@ -36,13 +33,12 @@ import {
   MatterbridgeEndpoint,
   MatterbridgeLevelControlServer,
   onOffLight,
-  onOffOutlet,
-  onOffSwitch,
-  PlatformConfig,
-  PlatformMatterbridge,
+  onOffLightSwitch,
+  onOffPlugInUnit,
+  type PlatformConfig,
+  type PlatformMatterbridge,
 } from 'matterbridge';
-import { AnsiLogger, rs } from 'matterbridge/logger';
-import { ColorControl, LevelControl } from 'matterbridge/matter/clusters';
+import { type AnsiLogger, rs } from 'matterbridge/logger';
 import { hslColorToRgbColor, isValidNumber, isValidObject, isValidString, miredToKelvin, wait } from 'matterbridge/utils';
 
 import { fetch } from './fetch.js';
@@ -100,8 +96,8 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
     super(matterbridge, log, config);
 
     // Verify that Matterbridge is the correct version
-    if (typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('3.8.0')) {
-      throw new Error(`This plugin requires Matterbridge version >= "3.8.0". Please update Matterbridge to the latest version in the frontend.`);
+    if (typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('3.9.0')) {
+      throw new Error(`This plugin requires Matterbridge version >= "3.9.0". Please update Matterbridge to the latest version in the frontend.`);
     }
 
     this.log.info('Initializing platform:', this.config.name);
@@ -126,7 +122,7 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
       if (!this.validateDevice(['webhook' + i, webhookName], true)) continue;
       this.log.info(`Registering device: ${webhookName} with method ${webhook.method} and url ${webhook.httpUrl}`);
       const device = new MatterbridgeEndpoint(
-        [this.config.deviceType === 'Outlet' ? onOffOutlet : this.config.deviceType === 'Light' ? onOffLight : onOffSwitch, bridgedNode],
+        [this.config.deviceType === 'Outlet' ? onOffPlugInUnit : this.config.deviceType === 'Light' ? onOffLight : onOffLightSwitch, bridgedNode],
         { id: webhookName },
         this.config.debug,
       )
@@ -140,7 +136,6 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
           this.config.version,
         )
         // Extraneous server cluster for Apple Home app to recognize the device as a switch and not a plug.
-        // The on/off cluster server will be removed from required clusters of onOffSwitch in a future release.
         .createDefaultOnOffClusterServer(false)
         .addRequiredClusters()
         .addCommandHandler('on', async () => {
@@ -149,8 +144,8 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
           this.log.debug(`Fetching ${webhook.httpUrl} with ${webhook.method}...`);
           fetch(webhook.httpUrl, webhook.method)
             .then(() => this.log.notice(`Webhook ${webhookName} successful!`))
-            .catch((err) => {
-              this.log.error(`Webhook ${webhookName} failed: ${err instanceof Error ? err.message : err}`);
+            .catch((err: unknown) => {
+              this.log.error(`Webhook ${webhookName} failed: ${err instanceof Error ? err.message : String(err)}`);
             });
         });
       await this.registerDevice(device);
@@ -165,7 +160,7 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
       this.setSelectDevice('outlet' + i, outletName, undefined, 'hub');
       if (!this.validateDevice(['outlet' + i, outletName], true)) continue;
       this.log.info(`Registering outlet: ${outletName}...`);
-      const device = new MatterbridgeEndpoint([onOffOutlet, bridgedNode], { id: outletName }, this.config.debug)
+      const device = new MatterbridgeEndpoint([onOffPlugInUnit, bridgedNode], { id: outletName }, this.config.debug)
         .createDefaultBridgedDeviceBasicInformationClusterServer(
           outletName,
           'outlet' + i++,
@@ -256,28 +251,30 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // oxlint-disable-next-line typescript/require-await
   override async onAction(action: string, value?: string, id?: string, formData?: PlatformConfig): Promise<void> {
     this.log.info('onAction called with action:', action, 'and value:', value ?? 'none', 'and id:', id ?? 'none');
     this.log.debug('onAction called with formData:', formData ?? 'none');
-    if (id?.startsWith('root_webhooks_')) id = id.replace('root_webhooks_', '');
-    if (id?.endsWith('_test')) id = id.replace('_test', '');
+    let webhookId = id;
+    if (webhookId?.startsWith('root_webhooks_')) webhookId = webhookId.replace('root_webhooks_', '');
+    if (webhookId?.endsWith('_test')) webhookId = webhookId.replace('_test', '');
     if (action === 'test') {
       // Test the webhook before is confirmed
       if (isValidObject(formData, 1) && isValidObject(formData.webhooks, 1)) {
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- formData.webhooks is validated above and is a Record<string, WebhookConfig> from the schema.
         const webhooks = formData.webhooks as Record<string, WebhookConfig>;
         for (const webhookName in webhooks) {
           if (Object.prototype.hasOwnProperty.call(webhooks, webhookName)) {
             const webhook = webhooks[webhookName];
-            if (id?.includes(webhookName)) {
+            if (webhookId?.includes(webhookName)) {
               this.log.info(`Testing new webhook ${webhookName} method ${webhook.method} url ${webhook.httpUrl}`);
               fetch(webhook.httpUrl, webhook.method)
                 .then(() => {
                   this.log.notice(`Webhook test ${webhookName} successful!`);
                   return;
                 })
-                .catch((err) => {
-                  this.log.error(`Webhook test ${webhookName} failed: ${err instanceof Error ? err.message : err}`);
+                .catch((err: unknown) => {
+                  this.log.error(`Webhook test ${webhookName} failed: ${err instanceof Error ? err.message : String(err)}`);
                 });
             }
           }
@@ -288,15 +285,15 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
       for (const webhookName in this.config.webhooks) {
         if (Object.prototype.hasOwnProperty.call(this.config.webhooks, webhookName)) {
           const webhook = this.config.webhooks[webhookName];
-          if (id?.includes(webhookName)) {
+          if (webhookId?.includes(webhookName)) {
             this.log.info(`Testing webhook ${webhookName} method ${webhook.method} url ${webhook.httpUrl}`);
             fetch(webhook.httpUrl, webhook.method)
               .then(() => {
                 this.log.notice(`Webhook test ${webhookName} successful!`);
                 return;
               })
-              .catch((err) => {
-                this.log.error(`Webhook test ${webhookName} failed: ${err instanceof Error ? err.message : err}`);
+              .catch((err: unknown) => {
+                this.log.error(`Webhook test ${webhookName} failed: ${err instanceof Error ? err.message : String(err)}`);
               });
           }
         }
@@ -307,7 +304,7 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
   override async onShutdown(reason?: string): Promise<void> {
     await super.onShutdown(reason);
     this.log.info('onShutdown called with reason:', reason ?? 'none');
-    if (this.config.unregisterOnShutdown === true) await this.unregisterAllDevices();
+    if (this.config.unregisterOnShutdown) await this.unregisterAllDevices();
   }
 
   /**
@@ -341,28 +338,28 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
 
     // Request based replacements
     if (parsedUrl.includes('${LEVEL}') && data.cluster === 'levelControl' && isValidNumber(data.request.level)) {
-      parsedUrl = parsedUrl.replace('${LEVEL}', (data.request as LevelControl.MoveToLevelRequest).level.toString());
+      parsedUrl = parsedUrl.replace('${LEVEL}', data.request.level.toString());
     }
     if (url.includes('${LEVEL100}') && data.cluster === 'levelControl' && isValidNumber(data.request.level)) {
-      parsedUrl = parsedUrl.replace('${LEVEL100}', Math.round(((data.request as LevelControl.MoveToLevelRequest).level / 254) * 100).toString());
+      parsedUrl = parsedUrl.replace('${LEVEL100}', Math.round((data.request.level / 254) * 100).toString());
     }
     if (parsedUrl.includes('${KELVIN}') && data.cluster === 'colorControl' && data.command === 'moveToColorTemperature' && isValidNumber(data.request.colorTemperatureMireds)) {
-      parsedUrl = parsedUrl.replace('${KELVIN}', Math.round(miredToKelvin((data.request as ColorControl.MoveToColorTemperatureRequest).colorTemperatureMireds)).toString());
+      parsedUrl = parsedUrl.replace('${KELVIN}', Math.round(miredToKelvin(data.request.colorTemperatureMireds)).toString());
     }
     if (parsedUrl.includes('${MIRED}') && data.cluster === 'colorControl' && data.command === 'moveToColorTemperature' && isValidNumber(data.request.colorTemperatureMireds)) {
-      parsedUrl = parsedUrl.replace('${MIRED}', Math.round((data.request as ColorControl.MoveToColorTemperatureRequest).colorTemperatureMireds).toString());
+      parsedUrl = parsedUrl.replace('${MIRED}', Math.round(data.request.colorTemperatureMireds).toString());
     }
     if (parsedUrl.includes('${COLORX}') && data.cluster === 'colorControl' && data.command === 'moveToColor' && isValidNumber(data.request.colorX, 0, 65279)) {
-      parsedUrl = parsedUrl.replace('${COLORX}', this.roundTo((data.request as ColorControl.MoveToColorRequest).colorX / 65536, 4).toString());
+      parsedUrl = parsedUrl.replace('${COLORX}', this.roundTo(data.request.colorX / 65536, 4).toString());
     }
     if (parsedUrl.includes('${COLORY}') && data.cluster === 'colorControl' && data.command === 'moveToColor' && isValidNumber(data.request.colorY, 0, 65279)) {
-      parsedUrl = parsedUrl.replace('${COLORY}', this.roundTo((data.request as ColorControl.MoveToColorRequest).colorY / 65536, 4).toString());
+      parsedUrl = parsedUrl.replace('${COLORY}', this.roundTo(data.request.colorY / 65536, 4).toString());
     }
     if (parsedUrl.includes('${HUE}') && data.cluster === 'colorControl' && data.command === 'moveToHueAndSaturation' && isValidNumber(data.request.hue, 0, 254)) {
-      parsedUrl = parsedUrl.replace('${HUE}', Math.round(((data.request as ColorControl.MoveToHueAndSaturationRequest).hue * 360) / 254).toString());
+      parsedUrl = parsedUrl.replace('${HUE}', Math.round((data.request.hue * 360) / 254).toString());
     }
     if (parsedUrl.includes('${SATURATION}') && data.cluster === 'colorControl' && data.command === 'moveToHueAndSaturation' && isValidNumber(data.request.saturation, 0, 254)) {
-      parsedUrl = parsedUrl.replace('${SATURATION}', Math.round(((data.request as ColorControl.MoveToHueAndSaturationRequest).saturation * 100) / 254).toString());
+      parsedUrl = parsedUrl.replace('${SATURATION}', Math.round((data.request.saturation * 100) / 254).toString());
     }
 
     // Attributes based replacements
@@ -430,8 +427,8 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
         this.log.debug(`Webhook ${deviceType} ${deviceName} ${command} response:${rs}\n`, response);
         return;
       })
-      .catch((err) => {
-        this.log.error(`Webhook ${deviceType} ${deviceName} ${command} failed: ${err instanceof Error ? err.message : err}`);
+      .catch((err: unknown) => {
+        this.log.error(`Webhook ${deviceType} ${deviceName} ${command} failed: ${err instanceof Error ? err.message : String(err)}`);
       });
     return { method, url: parsedUrl };
   }

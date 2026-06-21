@@ -1,9 +1,7 @@
-import http, { Server } from 'node:http';
-import { AddressInfo } from 'node:net';
+import http, { type Server } from 'node:http';
+import type { AddressInfo } from 'node:net';
 
-import { jest } from '@jest/globals';
-
-import { fetch } from './fetch.js';
+import { fetch } from '../src/fetch.js';
 
 describe('fetch test', () => {
   let server: Server;
@@ -11,14 +9,14 @@ describe('fetch test', () => {
 
   beforeAll(() => {});
 
-  beforeEach(async () => {
+  beforeEach(() => {
     // Clear all mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
-  afterEach(() => {
-    return new Promise<void>((resolve) => {
-      if (server && server.listening) {
+  afterEach(async () => {
+    await new Promise<void>((resolve) => {
+      if (server?.listening) {
         server.close(() => resolve());
       } else {
         resolve();
@@ -28,7 +26,7 @@ describe('fetch test', () => {
 
   afterAll(() => {
     // Restore all mocks
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   test('Successful GET request without data', async () => {
@@ -165,17 +163,17 @@ describe('fetch test', () => {
     const originalRequest = http.request;
     const errorMessage = 'Simulated network error';
     const fakeReq = {
-      on: jest.fn((event, callback) => {
+      on: vi.fn((event, callback) => {
         if (event === 'error') {
           setImmediate(() => (callback as (err: Error) => void)(new Error(errorMessage)));
         }
         return fakeReq;
       }),
-      write: jest.fn(),
-      end: jest.fn(),
-      destroy: jest.fn(),
+      write: vi.fn(),
+      end: vi.fn(),
+      destroy: vi.fn(),
     };
-    jest.spyOn(http, 'request').mockImplementation((...args: any[]) => {
+    vi.spyOn(http, 'request').mockImplementation((...args: any[]) => {
       // If a callback was provided as the second argument, call it asynchronously
       if (typeof args[1] === 'function') {
         process.nextTick(() =>
@@ -191,6 +189,6 @@ describe('fetch test', () => {
     });
 
     await expect(fetch('http://localhost', 'GET')).rejects.toThrow(`Request failed: ${errorMessage}`);
-    (http.request as jest.Mock).mockRestore();
+    vi.mocked(http.request).mockRestore();
   });
 });
