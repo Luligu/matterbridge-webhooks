@@ -1,3 +1,9 @@
+/**
+ * @file vitest/fetch.test.ts
+ * @description This file contains the tests for the fetch function.
+ * @author Luca Liguori
+ */
+
 import http, { type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 

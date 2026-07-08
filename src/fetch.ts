@@ -1,8 +1,8 @@
 /**
- * This file contains the fetch function for WebhooksPlatform.
- *
- * @file fetch.ts
+ * @file src/fetch.ts
+ * @description This file contains the fetch function for WebhooksPlatform.
  * @author Luca Liguori
+ * @created 2025-03-18
  * @version 1.0.0
  * @license Apache-2.0
  *

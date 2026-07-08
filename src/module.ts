@@ -1,8 +1,8 @@
 /**
- * This file contains the class WebhooksPlatform.
- *
- * @file module.ts
+ * @file src/module.ts
+ * @description This file contains the class WebhooksPlatform.
  * @author Luca Liguori
+ * @created 2025-03-18
  * @version 1.0.0
  * @license Apache-2.0
  *
