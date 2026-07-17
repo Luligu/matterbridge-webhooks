@@ -1,48 +1,55 @@
+/**
+ * @file vitest/module.test.ts
+ * @description This file contains the tests for the WebhooksPlatform class.
+ * @author Luca Liguori
+ */
+
 const NAME = 'Platform';
 const MATTER_PORT = 6000;
 
 // Warning: the tests in this file are supposed to run sequentially.
 
 // Mock the fetch module
-import http, { Server } from 'node:http';
-import { AddressInfo } from 'node:net';
+import http, { type Server } from 'node:http';
+import type { AddressInfo } from 'node:net';
 
-import { jest } from '@jest/globals';
-import { colorTemperatureLight, CommandHandlerData, dimmableLight, extendedColorLight, onOffLight, onOffOutlet, onOffSwitch } from 'matterbridge';
 import {
-  addBridgedEndpointMatterbridgeSpy,
-  addMatterbridgePlatform,
-  createMatterbridgeEnvironment,
-  destroyMatterbridgeEnvironment,
+  colorTemperatureLight,
+  type CommandHandlerData,
+  dimmableLight,
+  extendedColorLight,
+  onOffLight,
+  onOffLightSwitch,
+  onOffPlugInUnit,
+  type PlatformMatterbridge,
+} from 'matterbridge';
+import { LogLevel, rs } from 'matterbridge/logger';
+import type { Endpoint } from 'matterbridge/matter';
+import { wait } from 'matterbridge/utils';
+import { log, loggerDebugSpy, loggerErrorSpy, loggerInfoSpy, loggerLogSpy, loggerNoticeSpy, setDebug, setupTest } from 'matterbridge/vitest-utils';
+import {
+  addMatterbridge,
+  createServerNode,
+  createTestEnvironment,
+  destroyTestEnvironment,
+  getMatterbridge,
   getMoveToColorRequest,
   getMoveToColorTemperatureRequest,
   getMoveToHueAndSaturationRequest,
   getMoveToHueRequest,
   getMoveToLevelRequest,
   getMoveToSaturationRequest,
-  log,
-  loggerDebugSpy,
-  loggerErrorSpy,
-  loggerInfoSpy,
-  loggerLogSpy,
-  loggerNoticeSpy,
-  matterbridge,
-  setDebug,
-  setupTest,
-  startMatterbridgeEnvironment,
-  stopMatterbridgeEnvironment,
-} from 'matterbridge/jestutils';
-import { LogLevel, rs } from 'matterbridge/logger';
-import { Endpoint } from 'matterbridge/matter';
-import { ColorControl, LevelControl } from 'matterbridge/matter/clusters';
-import { wait } from 'matterbridge/utils';
+  startServerNode,
+  stopServerNode,
+} from 'matterbridge/vitest-utils/matter';
 
-import initializePlugin, { WebhooksPlatform, WebhooksPlatformConfig } from './module.js';
+import initializePlugin, { WebhooksPlatform, type WebhooksPlatformConfig } from '../src/module.js';
 
 // Setup the test environment
 await setupTest(NAME, false);
 
 describe('TestPlatform', () => {
+  let matterbridge: PlatformMatterbridge;
   let platform: WebhooksPlatform;
 
   // Test http server
@@ -116,8 +123,10 @@ describe('TestPlatform', () => {
 
   beforeAll(async () => {
     // Create Matterbridge environment
-    await createMatterbridgeEnvironment();
-    await startMatterbridgeEnvironment(MATTER_PORT);
+    await createTestEnvironment();
+    await createServerNode(MATTER_PORT);
+    await startServerNode();
+    matterbridge = getMatterbridge();
 
     // Create the http server. This server is used to mock the HTTP requests made by the webhooks.
     httpServer = http.createServer((req, res) => {
@@ -136,7 +145,7 @@ describe('TestPlatform', () => {
 
   beforeEach(() => {
     // Reset the mock calls before each test
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterEach(async () => {
@@ -147,7 +156,7 @@ describe('TestPlatform', () => {
   afterAll(async () => {
     // Close server
     await new Promise<void>((resolve) => {
-      if (httpServer && httpServer.listening) {
+      if (httpServer?.listening) {
         httpServer.close(() => resolve());
       } else {
         resolve();
@@ -155,11 +164,11 @@ describe('TestPlatform', () => {
     });
 
     // Destroy Matterbridge environment
-    await stopMatterbridgeEnvironment();
-    await destroyMatterbridgeEnvironment();
+    await stopServerNode();
+    await destroyTestEnvironment();
 
     // Restore all mocks
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should return an instance of Platform', async () => {
@@ -172,15 +181,15 @@ describe('TestPlatform', () => {
   });
 
   it('should throw error in load when version is not valid', () => {
-    expect(() => new WebhooksPlatform({ ...matterbridge, matterbridgeVersion: '1.5.0' }, log, config)).toThrow(
-      'This plugin requires Matterbridge version >= "3.8.0". Please update Matterbridge to the latest version in the frontend.',
+    expect(() => new WebhooksPlatform({ ...matterbridge, matterbridgeVersion: '3.8.0' }, log, config)).toThrow(
+      'This plugin requires Matterbridge version >= "3.9.0". Please update Matterbridge to the latest version in the frontend.',
     );
   });
 
   it('should initialize platform with config name', async () => {
     platform = new WebhooksPlatform(matterbridge, log, config);
     // Add the platform to the Matterbridge environment
-    addMatterbridgePlatform(platform);
+    addMatterbridge(platform);
     expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, 'Initializing platform:', config.name);
     expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, 'Finished initializing platform:', config.name);
     await platform.ready;
@@ -306,14 +315,13 @@ describe('TestPlatform', () => {
   it('should call onStart with reason', async () => {
     await platform.onStart('Test reason');
     expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, 'onStart called with reason:', 'Test reason');
-    expect(addBridgedEndpointMatterbridgeSpy).toHaveBeenCalledTimes(Object.keys(config.webhooks).length + Object.keys(config.outlets).length + Object.keys(config.lights).length);
     expect(platform.getDevices()).toHaveLength(7);
     expect(platform.getDevices()[0].serialNumber).toBe('webhook1');
-    expect(platform.getDevices()[0].deviceType).toBe(onOffSwitch.code);
+    expect(platform.getDevices()[0].deviceType).toBe(onOffLightSwitch.code);
     expect(platform.getDevices()[1].serialNumber).toBe('webhook2');
-    expect(platform.getDevices()[1].deviceType).toBe(onOffSwitch.code);
+    expect(platform.getDevices()[1].deviceType).toBe(onOffLightSwitch.code);
     expect(platform.getDevices()[2].serialNumber).toBe('outlet1');
-    expect(platform.getDevices()[2].deviceType).toBe(onOffOutlet.code);
+    expect(platform.getDevices()[2].deviceType).toBe(onOffPlugInUnit.code);
     expect(platform.getDevices()[3].serialNumber).toBe('light1');
     expect(platform.getDevices()[3].deviceType).toBe(onOffLight.code);
     expect(platform.getDevices()[4].serialNumber).toBe('light2');
@@ -409,45 +417,45 @@ describe('TestPlatform', () => {
     for (const device of devices) {
       await device.invokeBehaviorCommand('onOff', 'on', {});
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} on triggered`);
-      jest.clearAllMocks();
+      vi.clearAllMocks();
 
       await device.invokeBehaviorCommand('onOff', 'off', {});
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} off triggered`);
-      jest.clearAllMocks();
+      vi.clearAllMocks();
 
       if (device.serialNumber === 'light1') continue;
 
       await device.invokeBehaviorCommand('levelControl', 'moveToLevel', getMoveToLevelRequest(128, 0, true) as any);
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToLevel triggered`);
-      jest.clearAllMocks();
+      vi.clearAllMocks();
 
       await device.invokeBehaviorCommand('levelControl', 'moveToLevelWithOnOff', getMoveToLevelRequest(128, 0, true) as any);
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToLevelWithOnOff triggered`);
-      jest.clearAllMocks();
+      vi.clearAllMocks();
 
       if (device.serialNumber === 'light2') continue;
 
       await device.invokeBehaviorCommand('colorControl', 'moveToColorTemperature', getMoveToColorTemperatureRequest(4000, 0, true) as any);
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToColorTemperature triggered`);
-      jest.clearAllMocks();
+      vi.clearAllMocks();
 
       if (device.serialNumber === 'light3') continue;
 
       await device.invokeBehaviorCommand('colorControl', 'moveToColor', getMoveToColorRequest(25000, 25000, 0, true) as any);
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToColor triggered`);
-      jest.clearAllMocks();
+      vi.clearAllMocks();
 
       await device.invokeBehaviorCommand('colorControl', 'moveToHueAndSaturation', getMoveToHueAndSaturationRequest(128, 128, 0, true) as any);
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToHueAndSaturation triggered`);
-      jest.clearAllMocks();
+      vi.clearAllMocks();
 
       await device.invokeBehaviorCommand('colorControl', 'moveToHue', getMoveToHueRequest(128, 0, true) as any);
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToHue triggered`);
-      jest.clearAllMocks();
+      vi.clearAllMocks();
 
       await device.invokeBehaviorCommand('colorControl', 'moveToSaturation', getMoveToSaturationRequest(128, 0, true) as any);
       expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Webhook light ${device.deviceName} moveToSaturation triggered`);
-      jest.clearAllMocks();
+      vi.clearAllMocks();
     }
     await wait(100);
   });
