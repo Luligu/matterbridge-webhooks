@@ -337,10 +337,20 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
     }
 
     // Request based replacements
-    if (parsedUrl.includes('${LEVEL}') && data.cluster === 'levelControl' && isValidNumber(data.request.level)) {
+    if (
+      parsedUrl.includes('${LEVEL}') &&
+      data.cluster === 'levelControl' &&
+      (data.command === 'moveToLevel' || data.command === 'moveToLevelWithOnOff') &&
+      isValidNumber(data.request.level)
+    ) {
       parsedUrl = parsedUrl.replace('${LEVEL}', data.request.level.toString());
     }
-    if (url.includes('${LEVEL100}') && data.cluster === 'levelControl' && isValidNumber(data.request.level)) {
+    if (
+      url.includes('${LEVEL100}') &&
+      data.cluster === 'levelControl' &&
+      (data.command === 'moveToLevel' || data.command === 'moveToLevelWithOnOff') &&
+      isValidNumber(data.request.level)
+    ) {
       parsedUrl = parsedUrl.replace('${LEVEL100}', Math.round((data.request.level / 254) * 100).toString());
     }
     if (parsedUrl.includes('${KELVIN}') && data.cluster === 'colorControl' && data.command === 'moveToColorTemperature' && isValidNumber(data.request.colorTemperatureMireds)) {
