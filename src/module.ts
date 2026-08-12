@@ -346,7 +346,7 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
       parsedUrl = parsedUrl.replace('${LEVEL}', data.request.level.toString());
     }
     if (
-      url.includes('${LEVEL100}') &&
+      parsedUrl.includes('${LEVEL100}') &&
       data.cluster === 'levelControl' &&
       (data.command === 'moveToLevel' || data.command === 'moveToLevelWithOnOff') &&
       isValidNumber(data.request.level)
