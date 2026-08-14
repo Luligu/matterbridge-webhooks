@@ -217,19 +217,31 @@ describe('TestPlatform', () => {
     expect(await platform.parseUrl('light', 'Light1', 'on', baseUrl + '/api', {} as CommandHandlerData)).toEqual({ method: 'GET', url: baseUrl + '/api' });
 
     expect(
-      await platform.parseUrl('light', 'Light1', 'moveToLevel', baseUrl + '/api/${LEVEL}/${LEVEL100}', { request: { level: 1 }, cluster: 'levelControl', command: 'moveToLevel' } as any),
+      await platform.parseUrl('light', 'Light1', 'moveToLevel', baseUrl + '/api/${LEVEL}/${LEVEL100}', {
+        request: { level: 1 },
+        cluster: 'levelControl',
+        command: 'moveToLevel',
+      } as any),
     ).toEqual({
       method: 'GET',
       url: baseUrl + '/api/1/0',
     });
     expect(
-      await platform.parseUrl('light', 'Light1', 'moveToLevel', baseUrl + '/api/${LEVEL}/${LEVEL100}', { request: { level: 128 }, cluster: 'levelControl', command: 'moveToLevel' } as any),
+      await platform.parseUrl('light', 'Light1', 'moveToLevel', baseUrl + '/api/${LEVEL}/${LEVEL100}', {
+        request: { level: 128 },
+        cluster: 'levelControl',
+        command: 'moveToLevel',
+      } as any),
     ).toEqual({
       method: 'GET',
       url: baseUrl + '/api/128/50',
     });
     expect(
-      await platform.parseUrl('light', 'Light1', 'moveToLevel', baseUrl + '/api/${LEVEL}/${LEVEL100}', { request: { level: 254 }, cluster: 'levelControl', command: 'moveToLevel' } as any),
+      await platform.parseUrl('light', 'Light1', 'moveToLevel', baseUrl + '/api/${LEVEL}/${LEVEL100}', {
+        request: { level: 254 },
+        cluster: 'levelControl',
+        command: 'moveToLevel',
+      } as any),
     ).toEqual({
       method: 'GET',
       url: baseUrl + '/api/254/100',
