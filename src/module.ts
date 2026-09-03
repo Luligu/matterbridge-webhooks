@@ -39,7 +39,7 @@ import {
   type PlatformMatterbridge,
 } from 'matterbridge';
 import { type AnsiLogger, rs } from 'matterbridge/logger';
-import { hslColorToRgbColor, isValidNumber, isValidObject, isValidString, miredToKelvin, wait } from 'matterbridge/utils';
+import { fireAndForget, hslColorToRgbColor, isValidNumber, isValidObject, isValidString, miredToKelvin, wait } from 'matterbridge/utils';
 
 import { fetch } from './fetch.js';
 
@@ -138,9 +138,9 @@ export class WebhooksPlatform extends MatterbridgeDynamicPlatform {
         // Extraneous server cluster for Apple Home app to recognize the device as a switch and not a plug.
         .createDefaultOnOffClusterServer(false)
         .addRequiredClusters()
-        .addCommandHandler('on', async () => {
+        .addCommandHandler('on', () => {
           this.log.info(`Webhook ${webhookName} triggered`);
-          await device.setAttribute('onOff', 'onOff', false, device.log);
+          fireAndForget(device.setAttribute('onOff', 'onOff', false, device.log), device.log, `Webhook ${webhookName} reset`);
           this.log.debug(`Fetching ${webhook.httpUrl} with ${webhook.method}...`);
           fetch(webhook.httpUrl, webhook.method)
             .then(() => this.log.notice(`Webhook ${webhookName} successful!`))
