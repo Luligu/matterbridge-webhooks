@@ -149,6 +149,10 @@ See also the [Style Guide](./STYLEGUIDE.md) for JSDoc, naming, and logging conve
 - **Much faster builds** — tsgo compiles the project in a fraction of the time required by the standard `tsc` build.
 - **Editor support** — use the VS Code extensions for tsgo and oxc to get the same experience in the editor.
 
+## Shared agent instructions
+
+All coding agents read the same guidance. [AGENTS.md](./AGENTS.md) and [.agents/](./.agents/) are the single source of truth; the files under `.claude/` and `.github/` are pointers to them. See [.agents/README.md](./.agents/README.md) for the full layout.
+
 ## Copilot instructions
 
 | File                                                                   | Notes                                                                              |
@@ -157,7 +161,8 @@ See also the [Style Guide](./STYLEGUIDE.md) for JSDoc, naming, and logging conve
 | `.github/instructions/chip-tests/chip-tests.instructions.md`           | CHIP conformance test harness — scoped to CHIP test files                          |
 | `.github/instructions/matterbridge/matterbridge.instructions.md`       | Matterbridge endpoint guide — dedicated Copilot instruction file                   |
 | `.github/instructions/plugin-frontend/plugin-frontend.instructions.md` | Plugin frontend SPA and custom REST API guide — scoped to frontend and plugin code |
-| `.github/instructions/testing/unit-tests.instructions.md`              | Testing standards — scoped to `**/*.test.ts`                                       |
+| `.github/instructions/testing/testing.instructions.md`                 | Testing standards — scoped to `**/*.test.ts`                                       |
+| `.github/skills/verify-agent-context/SKILL.md`                         | Agent context verification skill — `/verify-agent-context`                         |
 
 ## Claude instructions
 
@@ -167,19 +172,32 @@ See also the [Style Guide](./STYLEGUIDE.md) for JSDoc, naming, and logging conve
 | `.claude/rules/chip-tests/chip-tests.instructions.md`           | CHIP conformance test harness — scoped to CHIP test files                          |
 | `.claude/rules/matterbridge/matterbridge.instructions.md`       | Matterbridge endpoint guide — loaded for all contexts                              |
 | `.claude/rules/plugin-frontend/plugin-frontend.instructions.md` | Plugin frontend SPA and custom REST API guide — scoped to frontend and plugin code |
-| `.claude/rules/testing/unit-tests.instructions.md`              | Testing standards — scoped to `**/*.test.ts`                                       |
+| `.claude/rules/testing/testing.instructions.md`                 | Testing standards — scoped to `**/*.test.ts`                                       |
+| `.claude/skills/verify-agent-context/SKILL.md`                  | Agent context verification skill — `/verify-agent-context`                         |
+| `.claude/settings.json`                                         | Claude Code project permissions and hooks                                          |
 
 ## Codex/Agents instructions
 
-| File                         | Notes                                             |
-| ---------------------------- | ------------------------------------------------- |
-| `AGENTS.md`                  | Main project instructions                         |
-| `.agents/chip-tests.md`      | CHIP conformance test harness                     |
-| `.agents/matterbridge.md`    | Matterbridge endpoint guide                       |
-| `.agents/plugin-frontend.md` | Plugin frontend SPA and custom REST API guide     |
-| `.agents/testing.md`         | Testing and validation expectations               |
-| `.codex/config.toml`         | Codex project permissions, approvals, and profile |
-| `.codex/rules/default.rules` | Codex command allow, prompt, and deny rules       |
+| File                                             | Notes                                                      |
+| ------------------------------------------------ | ---------------------------------------------------------- |
+| `AGENTS.md`                                      | Main project instructions                                  |
+| `.agents/README.md`                              | Layout of the shared rules and skills, and how to add more |
+| `.agents/rules/chip-tests.instructions.md`       | CHIP conformance test harness                              |
+| `.agents/rules/matterbridge.instructions.md`     | Matterbridge endpoint guide                                |
+| `.agents/rules/plugin-frontend.instructions.md`  | Plugin frontend SPA and custom REST API guide              |
+| `.agents/rules/testing.instructions.md`          | Testing and validation expectations                        |
+| `.agents/skills/verify-agent-context/SKILL.md`   | Agent context verification skill — `$verify-agent-context` |
+| `.codex/config.toml`                             | Codex project permissions, approvals, and profile          |
+| `.codex/rules/default.rules`                     | Codex command allow, prompt, and deny rules                |
+
+## Gemini / Antigravity instructions
+
+| File                                           | Notes                                                                 |
+| ---------------------------------------------- | --------------------------------------------------------------------- |
+| `GEMINI.md`                                    | Main project instructions — always loaded, includes `AGENTS.md`       |
+| `.agents/rules/*.instructions.md`              | Shared rules read on demand — listed in `AGENTS.md` and `GEMINI.md`   |
+| `.agents/skills/verify-agent-context/SKILL.md` | Agent context verification skill — `/verify-agent-context`            |
+| `.antigravity/settings.json`                   | Antigravity sandboxing and command allow, ask, and deny permissions   |
 
 ## Development guide
 
