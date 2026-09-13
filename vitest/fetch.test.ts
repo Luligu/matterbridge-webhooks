@@ -4,7 +4,9 @@
  * @author Luca Liguori
  */
 
+import { EventEmitter } from 'node:events';
 import http, { type Server } from 'node:http';
+import https from 'node:https';
 import type { AddressInfo } from 'node:net';
 
 import { fetch } from '../src/fetch.js';
@@ -81,6 +83,52 @@ describe('fetch test', () => {
       obj: JSON.stringify({ a: 1 }),
       nul: '',
     });
+  });
+
+  test('Successful GET request with query parameters appended to an existing query string', async () => {
+    // Server echoes back the raw url and the parsed query parameters.
+    server = http.createServer((req, res) => {
+      const reqUrl = new URL(req.url as string, `http://${req.headers.host}`);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ url: req.url, params: Object.fromEntries(reqUrl.searchParams.entries()) }));
+    });
+    await new Promise<void>((resolve) => server.listen(0, () => resolve()));
+    const port = (server.address() as AddressInfo).port;
+    baseUrl = `http://127.0.0.1:${port}`;
+
+    const result = await fetch<{ url: string; params: Record<string, string> }>(`${baseUrl}/api?existing=1`, 'GET', { key: 'value' });
+    expect(result.url).toBe('/api?existing=1&key=value');
+    expect(result.params).toEqual({ existing: '1', key: 'value' });
+  });
+
+  test('Https url should use the https module', async () => {
+    const fakeRes = Object.assign(new EventEmitter(), {
+      statusCode: 200,
+      setEncoding: vi.fn(),
+      resume: vi.fn(),
+    });
+    const fakeReq = {
+      on: vi.fn(() => fakeReq),
+      write: vi.fn(),
+      end: vi.fn(),
+      destroy: vi.fn(),
+    };
+    const httpSpy = vi.spyOn(http, 'request');
+    const httpsSpy = vi.spyOn(https, 'request').mockImplementation((...args: any[]) => {
+      process.nextTick(() => {
+        args[2](fakeRes);
+        fakeRes.emit('data', JSON.stringify({ secure: true }));
+        fakeRes.emit('end');
+      });
+      return fakeReq as any;
+    });
+
+    await expect(fetch<{ secure: boolean }>('https://localhost/api', 'GET')).resolves.toEqual({ secure: true });
+    expect(httpsSpy).toHaveBeenCalledTimes(1);
+    expect(httpSpy).not.toHaveBeenCalled();
+
+    httpsSpy.mockRestore();
+    httpSpy.mockRestore();
   });
 
   test('Successful POST request', async () => {
