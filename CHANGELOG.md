@@ -37,8 +37,8 @@ If you like this project and find it useful, please consider giving it a star on
 
 ### Added
 
-- [devcontainer]: Add [`Dev Container`](.devcontainer\README.md) v.2.2.0 with dual Node and Bun runtime support.
-- [agents]: Add a [`shared setup`](.agents\README.md) for all agents: OpenAI Codex, Claude Code, GitHub Copilot and Google Gemini / Antigravity.
+- [devcontainer]: Add [`Dev Container`](.devcontainer/README.md) v.2.2.0 with dual Node and Bun runtime support.
+- [agents]: Add a [`shared setup`](.agents/README.md) for all agents: OpenAI Codex, Claude Code, GitHub Copilot and Google Gemini / Antigravity.
 
 ### Changed
 
