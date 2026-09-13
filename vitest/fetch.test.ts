@@ -88,7 +88,12 @@ describe('fetch test', () => {
   test('Successful GET request with query parameters appended to an existing query string', async () => {
     // Server echoes back the raw url and the parsed query parameters.
     server = http.createServer((req, res) => {
-      const reqUrl = new URL(req.url as string, `http://${req.headers.host}`);
+      if (!req.url) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Bad Request: Missing URL' }));
+        return;
+      }
+      const reqUrl = new URL(req.url, `http://${req.headers.host}`);
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ url: req.url, params: Object.fromEntries(reqUrl.searchParams.entries()) }));
     });

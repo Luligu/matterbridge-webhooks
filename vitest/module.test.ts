@@ -174,10 +174,10 @@ describe('TestPlatform', () => {
   it('should return an instance of Platform', async () => {
     platform = initializePlugin(matterbridge, log, config);
     expect(platform).toBeInstanceOf(WebhooksPlatform);
-    expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, 'Initializing platform:', config.name);
-    expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, 'Finished initializing platform:', config.name);
+    expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Initializing platform ${config.name}...`);
+    expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Platform ${config.name} initialized successfully`);
     await platform.onShutdown();
-    expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, 'onShutdown called with reason:', 'none');
+    expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Shutting down platform ${config.name} with reason: no reason provided...`);
   });
 
   it('should throw error in load when version is not valid', () => {
@@ -190,8 +190,8 @@ describe('TestPlatform', () => {
     platform = new WebhooksPlatform(matterbridge, log, config);
     // Add the platform to the Matterbridge environment
     addMatterbridge(platform);
-    expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, 'Initializing platform:', config.name);
-    expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, 'Finished initializing platform:', config.name);
+    expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Initializing platform ${config.name}...`);
+    expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Platform ${config.name} initialized successfully`);
     await platform.ready;
   });
 
@@ -330,9 +330,69 @@ describe('TestPlatform', () => {
     expect(loggerErrorSpy).not.toHaveBeenCalled();
   });
 
+  it('should parse url with light and moveToLevelWithOnOff', async () => {
+    expect(
+      await platform.parseUrl('light', 'Light1', 'moveToLevelWithOnOff', baseUrl + '/api/${LEVEL}', {
+        request: { level: 254 },
+        cluster: 'levelControl',
+        command: 'moveToLevelWithOnOff',
+      } as any),
+    ).toEqual({
+      method: 'GET',
+      url: baseUrl + '/api/254',
+    });
+    await wait(100);
+    expect(loggerErrorSpy).not.toHaveBeenCalled();
+  });
+
+  it('should parse url with light and a single attribute placeholder', async () => {
+    expect(
+      await platform.parseUrl('light', 'Light1', 'on', baseUrl + '/api/${level}', {
+        attributes: { currentLevel: 128 },
+        endpoint: { getCluster: () => ({ currentLevel: 128 }) } as unknown as Endpoint,
+        cluster: 'levelControl',
+      } as any),
+    ).toEqual({
+      method: 'GET',
+      url: baseUrl + '/api/128',
+    });
+    expect(
+      await platform.parseUrl('light', 'Light1', 'on', baseUrl + '/api/${mired}', {
+        attributes: { colorTemperatureMireds: 300, colorTempPhysicalMinMireds: 147, colorTempPhysicalMaxMireds: 500 },
+        endpoint: { getCluster: () => ({ colorTemperatureMireds: 300, colorTempPhysicalMinMireds: 147, colorTempPhysicalMaxMireds: 500 }) } as unknown as Endpoint,
+        cluster: 'colorControl',
+      } as any),
+    ).toEqual({
+      method: 'GET',
+      url: baseUrl + '/api/300',
+    });
+    expect(
+      await platform.parseUrl('light', 'Light1', 'on', baseUrl + '/api/${colorX}', {
+        attributes: { currentX: 24939, currentY: 24701 },
+        endpoint: { getCluster: () => ({ currentX: 24939, currentY: 24701 }) } as unknown as Endpoint,
+        cluster: 'colorControl',
+      } as any),
+    ).toEqual({
+      method: 'GET',
+      url: baseUrl + '/api/0.3805',
+    });
+    expect(
+      await platform.parseUrl('light', 'Light1', 'on', baseUrl + '/api/${colorY}', {
+        attributes: { currentX: 24939, currentY: 24701 },
+        endpoint: { getCluster: () => ({ currentX: 24939, currentY: 24701 }) } as unknown as Endpoint,
+        cluster: 'colorControl',
+      } as any),
+    ).toEqual({
+      method: 'GET',
+      url: baseUrl + '/api/0.3769',
+    });
+    await wait(100);
+    expect(loggerErrorSpy).not.toHaveBeenCalled();
+  });
+
   it('should call onStart with reason', async () => {
     await platform.onStart('Test reason');
-    expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, 'onStart called with reason:', 'Test reason');
+    expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Starting platform ${config.name} with reason: Test reason...`);
     expect(platform.getDevices()).toHaveLength(7);
     expect(platform.getDevices()[0].serialNumber).toBe('webhook1');
     expect(platform.getDevices()[0].deviceType).toBe(onOffLightSwitch.code);
@@ -352,7 +412,7 @@ describe('TestPlatform', () => {
 
   it('should call onConfigure', async () => {
     await platform.onConfigure();
-    expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, 'onConfigure called');
+    expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Configuring platform ${config.name}...`);
   });
 
   it('should call onAction', async () => {
@@ -584,6 +644,80 @@ describe('TestPlatform', () => {
 
   it('should call onShutdown with reason', async () => {
     await platform.onShutdown('Test reason');
-    expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, 'onShutdown called with reason:', 'Test reason');
+    expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Shutting down platform ${config.name} with reason: Test reason...`);
+  });
+
+  it('should not test the webhooks when the action is not test', async () => {
+    await platform.onAction('unknown');
+    expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, 'onAction called with action:', 'unknown', 'and value:', 'none', 'and id:', 'none');
+    expect(loggerLogSpy).not.toHaveBeenCalledWith(LogLevel.INFO, expect.stringContaining('Testing'));
+  });
+
+  it('should not test a new webhook when the id does not match', async () => {
+    await platform.onAction('test', undefined, 'root_webhooks_otherKey_test', {
+      name: 'matterbridge-webhooks',
+      type: 'DynamicPlatform',
+      version: '0.0.3',
+      webhooks: {
+        newKey: {
+          method: 'GET',
+          httpUrl: baseUrl + '/api',
+          test: false,
+        },
+      },
+      debug: true,
+      unregisterOnShutdown: false,
+    });
+    expect(loggerLogSpy).not.toHaveBeenCalledWith(LogLevel.INFO, expect.stringContaining('Testing new webhook'));
+  });
+
+  it('should unregister all devices on shutdown when unregisterOnShutdown is set', async () => {
+    config.unregisterOnShutdown = true;
+    await platform.onShutdown('Test reason');
+    expect(platform.getDevices()).toHaveLength(0);
+    expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Platform ${config.name} shut down successfully`);
+    config.unregisterOnShutdown = false;
+  });
+
+  it('should not register the devices filtered out by the whiteList and start without reason', async () => {
+    const filteredPlatform = new WebhooksPlatform(matterbridge, log, { ...config, whiteList: ['No such device'] });
+    addMatterbridge(filteredPlatform);
+    await filteredPlatform.onStart();
+    expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Starting platform ${config.name} with reason: no reason provided...`);
+    expect(filteredPlatform.getDevices()).toHaveLength(0);
+    expect(loggerLogSpy).toHaveBeenCalledWith(LogLevel.INFO, `Platform ${config.name} started successfully`);
+    await filteredPlatform.onShutdown('Test reason');
+  });
+
+  it('should register the webhooks as outlet when deviceType is Outlet', async () => {
+    const outletPlatform = new WebhooksPlatform(matterbridge, log, {
+      ...config,
+      deviceType: 'Outlet',
+      webhooks: { 'Outlet webhook': { method: 'GET', httpUrl: baseUrl + '/light/0?turn=on', test: false } },
+      outlets: {},
+      lights: {},
+      unregisterOnShutdown: true,
+    });
+    addMatterbridge(outletPlatform);
+    await outletPlatform.onStart('Test reason');
+    expect(outletPlatform.getDevices()).toHaveLength(1);
+    expect(outletPlatform.getDevices()[0].deviceType).toBe(onOffPlugInUnit.code);
+    await outletPlatform.onShutdown('Test reason');
+  });
+
+  it('should register the webhooks as light when deviceType is Light', async () => {
+    const lightPlatform = new WebhooksPlatform(matterbridge, log, {
+      ...config,
+      deviceType: 'Light',
+      webhooks: { 'Light webhook': { method: 'GET', httpUrl: baseUrl + '/light/0?turn=on', test: false } },
+      outlets: {},
+      lights: {},
+      unregisterOnShutdown: true,
+    });
+    addMatterbridge(lightPlatform);
+    await lightPlatform.onStart('Test reason');
+    expect(lightPlatform.getDevices()).toHaveLength(1);
+    expect(lightPlatform.getDevices()[0].deviceType).toBe(onOffLight.code);
+    await lightPlatform.onShutdown('Test reason');
   });
 });
