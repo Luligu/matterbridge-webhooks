@@ -10,7 +10,6 @@
 [![tested with Vitest](https://img.shields.io/badge/tested_with-Vitest-6E9F18.svg?logo=vitest&logoColor=white)](https://vitest.dev)
 [![styled with Oxc](https://img.shields.io/badge/styled_with-Oxc-9BE4E0.svg?logo=oxc&logoColor=white)](https://oxc.rs/docs/guide/usage/formatter.html)
 [![linted with Oxc](https://img.shields.io/badge/linted_with-Oxc-9BE4E0.svg?logo=oxc&logoColor=white)](https://oxc.rs/docs/guide/usage/linter.html)
-[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![TypeScript Native](https://img.shields.io/badge/TypeScript_Native-3178C6?logo=typescript&logoColor=white)](https://github.com/microsoft/typescript-go)
 [![ESM](https://img.shields.io/badge/ESM-Node.js-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![matterbridge.io](https://img.shields.io/badge/matterbridge.io-online-brightgreen)](https://matterbridge.io)
@@ -133,3 +132,75 @@ The following examples allows to fully control a Shelly Trv Gen 1, adding Boost,
 "Profile Working Day": method: POST, Url: "http://192.168.1.XXX/settings/thermostats/0?schedule_profile=1"
 
 "Profile Holiday": method: POST, Url: "http://192.168.1.XXX/settings/thermostats/0?schedule_profile=2"
+
+## Style guide
+
+See also the [Style Guide](./STYLEGUIDE.md) for JSDoc, naming, and logging conventions used in this repository.
+
+## Repository toolchain
+
+> **Note:** This repository uses a new toolchain. It replaces the traditional TypeScript / ESLint / Prettier / Jest stack with a faster and lighter setup.
+
+- **No `typescript 6.x` package** — replaced by [TypeScript Native 7.x](https://github.com/microsoft/typescript-go).
+- **No ESLint, no Prettier** — replaced by the [oxc](https://oxc.rs) stack: [oxlint](https://oxc.rs/docs/guide/usage/linter.html) for linting and [oxfmt](https://oxc.rs/docs/guide/usage/formatter.html) for formatting.
+- **No Jest** — replaced by [Vitest](https://vitest.dev), which is much faster and natively supports ESM without extra configuration.
+- **Far fewer development dependencies** — the number of installed packages drops from **~600** to **~75**. A clean install is much faster.
+- **Much faster linting and formatting** — oxlint and oxfmt run in a fraction of the time required by the ESLint / Prettier pipeline.
+- **Much faster builds** — tsgo compiles the project in a fraction of the time required by the standard `tsc` build.
+- **Editor support** — use the VS Code extensions for tsgo and oxc to get the same experience in the editor.
+
+## Shared agent instructions
+
+All coding agents read the same guidance. [AGENTS.md](./AGENTS.md) and [.agents/](./.agents/) are the single source of truth; the files under `.claude/` and `.github/` are pointers to them. See [.agents/README.md](./.agents/README.md) for the full layout.
+
+## Copilot instructions
+
+| File                                                                   | Notes                                                                              |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `.github/copilot-instructions.md`                                      | Main project instructions — always loaded                                          |
+| `.github/instructions/chip-tests/chip-tests.instructions.md`           | CHIP conformance test harness — scoped to CHIP test files                          |
+| `.github/instructions/matterbridge/matterbridge.instructions.md`       | Matterbridge endpoint guide — dedicated Copilot instruction file                   |
+| `.github/instructions/plugin-frontend/plugin-frontend.instructions.md` | Plugin frontend SPA and custom REST API guide — scoped to frontend and plugin code |
+| `.github/instructions/testing/testing.instructions.md`                 | Testing standards — scoped to `**/*.test.ts`                                       |
+| `.github/skills/verify-agent-context/SKILL.md`                         | Agent context verification skill — `/verify-agent-context`                         |
+
+## Claude instructions
+
+| File                                                            | Notes                                                                              |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `CLAUDE.md`                                                     | Main project instructions — always loaded                                          |
+| `.claude/rules/chip-tests/chip-tests.instructions.md`           | CHIP conformance test harness — scoped to CHIP test files                          |
+| `.claude/rules/matterbridge/matterbridge.instructions.md`       | Matterbridge endpoint guide — loaded for all contexts                              |
+| `.claude/rules/plugin-frontend/plugin-frontend.instructions.md` | Plugin frontend SPA and custom REST API guide — scoped to frontend and plugin code |
+| `.claude/rules/testing/testing.instructions.md`                 | Testing standards — scoped to `**/*.test.ts`                                       |
+| `.claude/skills/verify-agent-context/SKILL.md`                  | Agent context verification skill — `/verify-agent-context`                         |
+| `.claude/settings.json`                                         | Claude Code project permissions and hooks                                          |
+
+## Codex/Agents instructions
+
+| File                                             | Notes                                                      |
+| ------------------------------------------------ | ---------------------------------------------------------- |
+| `AGENTS.md`                                      | Main project instructions                                  |
+| `.agents/README.md`                              | Layout of the shared rules and skills, and how to add more |
+| `.agents/rules/chip-tests.instructions.md`       | CHIP conformance test harness                              |
+| `.agents/rules/matterbridge.instructions.md`     | Matterbridge endpoint guide                                |
+| `.agents/rules/plugin-frontend.instructions.md`  | Plugin frontend SPA and custom REST API guide              |
+| `.agents/rules/testing.instructions.md`          | Testing and validation expectations                        |
+| `.agents/skills/verify-agent-context/SKILL.md`   | Agent context verification skill — `$verify-agent-context` |
+| `.codex/config.toml`                             | Codex project permissions, approvals, and profile          |
+| `.codex/rules/default.rules`                     | Codex command allow, prompt, and deny rules                |
+
+## Gemini / Antigravity instructions
+
+| File                                           | Notes                                                                 |
+| ---------------------------------------------- | --------------------------------------------------------------------- |
+| `GEMINI.md`                                    | Main project instructions — always loaded, includes `AGENTS.md`       |
+| `.agents/rules/*.instructions.md`              | Shared rules read on demand — listed in `AGENTS.md` and `GEMINI.md`   |
+| `.agents/skills/verify-agent-context/SKILL.md` | Agent context verification skill — `/verify-agent-context`            |
+| `.antigravity/settings.json`                   | Antigravity sandboxing and command allow, ask, and deny permissions   |
+
+## Development guide
+
+Refer to the Matterbridge [Development guide](https://matterbridge.io/README-DEV.html) for other guidelines.
+
+---
