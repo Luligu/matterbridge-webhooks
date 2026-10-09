@@ -25,23 +25,32 @@ import {
 } from 'matterbridge';
 import { LogLevel, rs } from 'matterbridge/logger';
 import type { Endpoint } from 'matterbridge/matter';
-import { wait } from 'matterbridge/utils';
-import { log, loggerDebugSpy, loggerErrorSpy, loggerInfoSpy, loggerLogSpy, loggerNoticeSpy, setDebug, setupTest } from 'matterbridge/vitest-utils';
 import {
-  addMatterbridge,
-  createServerNode,
-  createTestEnvironment,
-  destroyTestEnvironment,
-  getMatterbridge,
   getMoveToColorRequest,
   getMoveToColorTemperatureRequest,
   getMoveToHueAndSaturationRequest,
   getMoveToHueRequest,
   getMoveToLevelRequest,
   getMoveToSaturationRequest,
+} from 'matterbridge/test-utils/matter';
+import {
+  addMatterbridge,
+  createServerNode,
+  createTestEnvironment,
+  destroyTestEnvironment,
+  getMatterbridge,
+  log,
+  loggerDebugSpy,
+  loggerErrorSpy,
+  loggerInfoSpy,
+  loggerLogSpy,
+  loggerNoticeSpy,
+  setDebug,
+  setupTest,
   startServerNode,
   stopServerNode,
-} from 'matterbridge/vitest-utils/matter';
+} from 'matterbridge/test-utils/vitest';
+import { wait } from 'matterbridge/utils';
 
 import initializePlugin, { WebhooksPlatform, type WebhooksPlatformConfig } from '../src/module.js';
 
