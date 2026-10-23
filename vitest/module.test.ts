@@ -25,23 +25,32 @@ import {
 } from 'matterbridge';
 import { LogLevel, rs } from 'matterbridge/logger';
 import type { Endpoint } from 'matterbridge/matter';
-import { wait } from 'matterbridge/utils';
-import { log, loggerDebugSpy, loggerErrorSpy, loggerInfoSpy, loggerLogSpy, loggerNoticeSpy, setDebug, setupTest } from 'matterbridge/vitest-utils';
 import {
-  addMatterbridge,
-  createServerNode,
-  createTestEnvironment,
-  destroyTestEnvironment,
-  getMatterbridge,
   getMoveToColorRequest,
   getMoveToColorTemperatureRequest,
   getMoveToHueAndSaturationRequest,
   getMoveToHueRequest,
   getMoveToLevelRequest,
   getMoveToSaturationRequest,
+} from 'matterbridge/test-utils/matter';
+import {
+  addMatterbridge,
+  createServerNode,
+  createTestEnvironment,
+  destroyTestEnvironment,
+  getMatterbridge,
+  log,
+  loggerDebugSpy,
+  loggerErrorSpy,
+  loggerInfoSpy,
+  loggerLogSpy,
+  loggerNoticeSpy,
+  setDebug,
+  setupTest,
   startServerNode,
   stopServerNode,
-} from 'matterbridge/vitest-utils/matter';
+} from 'matterbridge/test-utils/vitest';
+import { wait } from 'matterbridge/utils';
 
 import initializePlugin, { WebhooksPlatform, type WebhooksPlatformConfig } from '../src/module.js';
 
@@ -182,7 +191,7 @@ describe('TestPlatform', () => {
 
   it('should throw error in load when version is not valid', () => {
     expect(() => new WebhooksPlatform({ ...matterbridge, matterbridgeVersion: '3.8.0' }, log, config)).toThrow(
-      'This plugin requires Matterbridge version >= "3.10.0". Please update Matterbridge to the latest version in the frontend.',
+      'This plugin requires Matterbridge version >= "3.11.0". Please update Matterbridge to the latest version in the frontend.',
     );
   });
 
